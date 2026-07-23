@@ -2,9 +2,6 @@
 Copyright IBM Corp. All Rights Reserved.
 
 SPDX-License-Identifier: LGPL-3.0-or-later
-
-WARNING: This package contains test-only/unsafe RPC implementations.
-DO NOT use in production environments.
 */
 
 package testimpl
@@ -39,9 +36,9 @@ func TestHardhatAPI_Mine_RPCRegistration(t *testing.T) {
 			var result any
 			var err error
 			if len(tc.params) == 0 {
-				err = client.CallContext(context.TODO(), &result, "hardhat_mine")
+				err = client.CallContext(context.Background(), &result, "hardhat_mine")
 			} else {
-				err = client.CallContext(context.TODO(), &result, "hardhat_mine", tc.params...)
+				err = client.CallContext(context.Background(), &result, "hardhat_mine", tc.params...)
 			}
 			if err != nil {
 				t.Fatalf("hardhat_mine: %v", err)
