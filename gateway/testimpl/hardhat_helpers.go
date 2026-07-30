@@ -223,6 +223,13 @@ func (api *EvmAPI) Mine(ctx context.Context) (string, error) {
 	return "0x0", nil
 }
 
+// SetAutomine accepts evm_setAutomine for RPC compatibility with Hardhat tests.
+// It does not change mining mode: block production is driven by Fabric consensus.
+func (api *EvmAPI) SetAutomine(ctx context.Context, enabled bool) error {
+	hardhatLogger.Debugf("EvmAPI.SetAutomine() called enabled=%v (stub; no state change)", enabled)
+	return nil
+}
+
 // IncreaseTime increases the timestamp of the next block (evm_increaseTime).
 // This is a stub that returns the time increase amount.
 func (api *EvmAPI) IncreaseTime(ctx context.Context, seconds hexutil.Uint64) (hexutil.Uint64, error) {
