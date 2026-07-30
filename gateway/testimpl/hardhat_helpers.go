@@ -56,6 +56,20 @@ func (api *HardhatAPI) Mine(ctx context.Context, blocks *hexutil.Uint64, interva
 	return nil
 }
 
+// ImpersonateAccount accepts hardhat_impersonateAccount for RPC compatibility.
+// It does not enable signing or sending as the given address.
+func (api *HardhatAPI) ImpersonateAccount(ctx context.Context, address common.Address) error {
+	hardhatLogger.Debugf("HardhatAPI.ImpersonateAccount() called address=%s (stub; no state change)", address.Hex())
+	return nil
+}
+
+// StopImpersonatingAccount accepts hardhat_stopImpersonatingAccount for RPC
+// compatibility. It is a no-op companion to ImpersonateAccount.
+func (api *HardhatAPI) StopImpersonatingAccount(ctx context.Context, address common.Address) error {
+	hardhatLogger.Debugf("HardhatAPI.StopImpersonatingAccount() called address=%s (stub; no state change)", address.Hex())
+	return nil
+}
+
 // EvmAPI provides EVM-specific RPC methods for testing, particularly snapshot/revert.
 // Uses LightKVS history mechanism to capture and restore ledger state, and Store
 // for database snapshot/revert.
