@@ -1526,7 +1526,7 @@
   },
   {
     "id": "ERC20Votes vote with blockNumber Compound test suite numCheckpoints does not add more than one checkpoint in a block",
-    "cause": "evm_setAutomine"
+    "cause": "transaction already pending"
   },
   {
     "id": "ERC20Votes vote with blockNumber Compound test suite numCheckpoints returns the number of checkpoints for a delegate",
@@ -1660,7 +1660,7 @@
   },
   {
     "id": "ERC20Votes vote with timestamp Compound test suite numCheckpoints does not add more than one checkpoint in a block",
-    "cause": "evm_setAutomine"
+    "cause": "transaction already pending"
   },
   {
     "id": "ERC20Votes vote with timestamp Compound test suite numCheckpoints returns the number of checkpoints for a delegate",
@@ -3329,7 +3329,7 @@
   },
   {
     "id": "RateLimiter RefillingBucket with some capacity multiple consumes in the same block accumulate",
-    "cause": "evm_setAutomine"
+    "cause": "nonce too low"
   },
   {
     "id": "RateLimiter RefillingBucket with some capacity refills linearly over time"
@@ -3353,15 +3353,14 @@
     "id": "RateLimiter RefillingBucket with some capacity used saturates to zero after a long idle"
   },
   {
-    "id": "RateLimiter RefillingBucket with some capacity using sync to mitigate updateSettings side effect",
-    "cause": "evm_setAutomine"
+    "id": "RateLimiter RefillingBucket with some capacity using sync to mitigate updateSettings side effect"
   },
   {
     "id": "RateLimiter SlidingWindow with some capacity consume after a full-window idle truncates cumulative history"
   },
   {
     "id": "RateLimiter SlidingWindow with some capacity multiple consumes in the same block overwrite the checkpoint in place",
-    "cause": "evm_setAutomine"
+    "cause": "execution reverted"
   },
   {
     "id": "RateLimiter SlidingWindow with some capacity only consumptions outside the window drop out"
@@ -3533,8 +3532,7 @@
     "cause": "eth_getProof"
   },
   {
-    "id": "TrieProof verify verify transaction and receipt inclusion in block",
-    "cause": "evm_setAutomine"
+    "id": "TrieProof verify verify transaction and receipt inclusion in block"
   },
   {
     "id": "VestingWallet \"before each\" hook for \"rejects zero address for beneficiary\"",
