@@ -8,6 +8,7 @@ package testimpl
 
 import (
 	"context"
+	"fmt"
 	"sync"
 	"testing"
 	"time"
@@ -23,6 +24,17 @@ func dialHardhat(t *testing.T) *rpc.Client {
 	srv := rpc.NewServer()
 	if err := srv.RegisterName("hardhat", NewHardhatAPI()); err != nil {
 		t.Fatalf("RegisterName hardhat: %v", err)
+	}
+	client := rpc.DialInProc(srv)
+	t.Cleanup(client.Close)
+	return client
+}
+
+func dialEvm(t *testing.T) *rpc.Client {
+	t.Helper()
+	srv := rpc.NewServer()
+	if err := srv.RegisterName("evm", NewEvmAPI(&mockRevertibleKVS{}, &mockRevertibleStore{}, &txFence{})); err != nil {
+		t.Fatalf("RegisterName evm: %v", err)
 	}
 	client := rpc.DialInProc(srv)
 	t.Cleanup(client.Close)
@@ -57,6 +69,29 @@ func TestHardhatAPI_Mine_RPCRegistration(t *testing.T) {
 				t.Fatalf("result = %#v, want nil", result)
 			}
 		})
+	}
+}
+
+func TestEvmAPI_SetAutomine_RPCRegistration(t *testing.T) {
+	client := dialEvm(t)
+	for _, enabled := range []bool{true, false} {
+		t.Run(fmt.Sprintf("%v", enabled), func(t *testing.T) {
+			var result any
+			if err := client.CallContext(context.Background(), &result, "evm_setAutomine", enabled); err != nil {
+				t.Fatalf("evm_setAutomine: %v", err)
+			}
+			if result != nil {
+				t.Fatalf("result = %#v, want nil", result)
+			}
+		})
+	}
+}
+
+func TestEvmAPI_SetAutomine_MissingArg(t *testing.T) {
+	client := dialEvm(t)
+	var result any
+	if err := client.CallContext(context.Background(), &result, "evm_setAutomine"); err == nil {
+		t.Fatal("expected error for missing argument")
 	}
 }
 
