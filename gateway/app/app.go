@@ -96,8 +96,10 @@ func newApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, enableT
 	endorserSyncs := make([]*network.Synchronizer, 0, len(cfg.Endorsers))
 	var firstKVS estorage.KVS // Keep first endorser's KVS for test server
 	for i, ecfg := range cfg.Endorsers {
+		// Test RPC needs a large sequential history window (see testnode); production
+		// only needs a couple of snapshots for the synchronizer.
 		if enableTestRPC {
-			ecfg.Database.HistorySize = 128
+			ecfg.Database.HistorySize = 16384
 		} else if ecfg.Database.HistorySize == 0 {
 			ecfg.Database.HistorySize = 2
 		}
