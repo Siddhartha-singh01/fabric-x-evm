@@ -201,6 +201,41 @@ func TestRevertibleLightKVS_NewSnapshot_SkipsEmptyBlocks(t *testing.T) {
 	if rec1 == nil || string(rec1.Value) != "v1" {
 		t.Fatalf("expected key1=v1 at block 1, got %+v", rec1)
 	}
+
+	// At or past current returns latest (v5).
+	rLatest, err := kvs.NewSnapshot(5)
+	if err != nil {
+		t.Fatalf("NewSnapshot(5): %v", err)
+	}
+	defer rLatest.Close()
+	recLatest, err := rLatest.Get("ns1", "key1")
+	if err != nil {
+		t.Fatalf("Get latest: %v", err)
+	}
+	if recLatest == nil || string(recLatest.Value) != "v5" {
+		t.Fatalf("expected key1=v5 at block 5, got %+v", recLatest)
+	}
+}
+
+// TestRevertibleLightKVS_NewSnapshot_NotFound covers the error path when no
+// preserved snapshot is at or before the requested block (e.g. history slots
+// cleared while current has already advanced).
+func TestRevertibleLightKVS_NewSnapshot_NotFound(t *testing.T) {
+	kvs := NewRevertibleLightKVS(NewLightKVS(4))
+
+	if err := kvs.Update([]KeyValueVersion{
+		{Key: "ns1:key1", Value: []byte("v10"), BlockNum: 10, TxNum: 0, TxID: "tx10"},
+	}); err != nil {
+		t.Fatalf("Update: %v", err)
+	}
+
+	// Drop the only history entry (pre-update empty snapshot) so nothing
+	// older than current remains.
+	kvs.History[0].Store(nil)
+
+	if _, err := kvs.NewSnapshot(3); err == nil {
+		t.Fatal("expected error when no history exists at or before block 3")
+	}
 }
 
 // TestRevertibleLightKVS_HistoryExhaustedPanics documents the deliberate trade-off:

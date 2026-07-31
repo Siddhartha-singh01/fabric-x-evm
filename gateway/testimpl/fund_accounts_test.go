@@ -171,3 +171,38 @@ func TestFundTestAccounts_UnsupportedKVS(t *testing.T) {
 		t.Fatal("expected error for nil/unsupported KVS")
 	}
 }
+
+func TestFundTestAccounts_NilEmbeddedLightKVS(t *testing.T) {
+	kvs := &estorage.RevertibleLightKVS{} // LightKVS unset
+	err := FundTestAccounts(kvs, testNS, []common.Address{{1}}, DefaultTestAccountBalance)
+	if err == nil {
+		t.Fatal("expected error for nil embedded LightKVS")
+	}
+}
+
+func TestFundTestAccounts_NilCurrentSnapshot(t *testing.T) {
+	base := estorage.NewLightKVS(2)
+	base.Current.Store(nil)
+	err := FundTestAccounts(base, testNS, []common.Address{{1}}, DefaultTestAccountBalance)
+	if err == nil {
+		t.Fatal("expected error when current snapshot is nil")
+	}
+
+	rev := estorage.NewRevertibleLightKVS(estorage.NewLightKVS(2))
+	rev.Current.Store(nil)
+	err = FundTestAccounts(rev, testNS, []common.Address{{1}}, DefaultTestAccountBalance)
+	if err == nil {
+		t.Fatal("expected error when revertible current snapshot is nil")
+	}
+}
+
+func TestFundTestAccounts_NegativeBalanceIsNoop(t *testing.T) {
+	kvs := estorage.NewLightKVS(2)
+	err := FundTestAccounts(kvs, testNS, []common.Address{{1}}, big.NewInt(-1))
+	if err != nil {
+		t.Fatalf("negative balance: %v", err)
+	}
+	if len(kvs.Current.Load().Data) != 0 {
+		t.Fatal("expected no keys for negative balance")
+	}
+}
