@@ -1064,6 +1064,14 @@
     "cause": "hardhat_setBalance"
   },
   {
+    "id": "ERC20FlashMint flashLoan custom flash fee & custom fee receiver \"before each\" hook: init receiver balance & set flash fee for \"default flash fee receiver\"",
+    "cause": "snapshot not found"
+  },
+  {
+    "id": "ERC20FlashMint flashLoan success",
+    "cause": "snapshot not found"
+  },
+  {
     "id": "ERC20Permit permit accepts owner signature",
     "cause": "eth_signTypedData_v4"
   },
@@ -2307,7 +2315,12 @@
     "id": "Governor using $ERC20VotesTimestampMock should revert on queue reverts with GovernorProposalQueueingFailed when _queueOperations returns 0"
   },
   {
-    "id": "Governor using $ERC20VotesTimestampMock should revert on vote by signature \"before each\" hook for \"if signature does not match signer\""
+    "id": "Governor using $ERC20VotesTimestampMock should revert on vote by signature if signature does not match signer",
+    "cause": "eth_signTypedData_v4"
+  },
+  {
+    "id": "Governor using $ERC20VotesTimestampMock should revert on vote by signature if vote nonce is incorrect",
+    "cause": "eth_signTypedData_v4"
   },
   {
     "id": "Governor using $ERC20VotesTimestampMock should revert on vote if support value is invalid"
@@ -2403,8 +2416,12 @@
     "id": "GovernorCrosschain reconfigure executor"
   },
   {
-    "id": "GovernorERC721 using $ERC721Votes \"before each\" hook for \"deployment check\"",
-    "cause": "insufficient-funds"
+    "id": "GovernorERC721 using $ERC721Votes deployment check",
+    "cause": "execution reverted"
+  },
+  {
+    "id": "GovernorERC721 using $ERC721Votes voting with ERC721 token",
+    "cause": "fixed-block-number"
   },
   {
     "id": "GovernorERC721 using $ERC721VotesTimestampMock \"before each\" hook for \"deployment check\"",
