@@ -1060,30 +1060,6 @@
     "cause": "hardhat_setBalance"
   },
   {
-    "id": "ECDSA parse signature 65 and 64 bytes signatures",
-    "cause": "personal_sign"
-  },
-  {
-    "id": "ECDSA recover with valid signature using <signer>.sign returns a different address",
-    "cause": "personal_sign"
-  },
-  {
-    "id": "ECDSA recover with valid signature using <signer>.sign returns signer address with correct signature",
-    "cause": "personal_sign"
-  },
-  {
-    "id": "ECDSA recover with valid signature using <signer>.sign returns signer address with correct signature for arbitrary length message",
-    "cause": "personal_sign"
-  },
-  {
-    "id": "EIP712 with long name and version digest",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "EIP712 with short name and version digest",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC1155 like an ERC1155 ERC165 when the interfaceId is not supported uses less than 30k",
     "cause": "gas-stub"
   },
@@ -1228,23 +1204,7 @@
     "cause": "hardhat_setBalance"
   },
   {
-    "id": "ERC20Permit permit accepts owner signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC20Permit permit rejects expired permit",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20Permit permit rejects other signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20Permit permit rejects reused signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with blockNumber cancelAuthorization accepts authorizer signature",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -1256,27 +1216,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC20TransferAuthorization with blockNumber cancelAuthorization rejects cancellation of a non-next nonce in the same key sequence",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with blockNumber cancelAuthorization rejects other signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with blockNumber cancelAuthorization rejects reused nonce",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC20TransferAuthorization with blockNumber cancelAuthorization shares the keyed counter between transfer and receive",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with blockNumber cancelAuthorization with bytes signature accepts ERC1271 wallet signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with blockNumber cancelAuthorization with bytes signature accepts authorizer signature",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -1284,23 +1224,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC20TransferAuthorization with blockNumber cancelAuthorization with bytes signature rejects invalid ERC1271 signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC20TransferAuthorization with blockNumber receiveWithAuthorization accepts holder signature when called by recipient",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with blockNumber receiveWithAuthorization rejects authorization not yet valid",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with blockNumber receiveWithAuthorization rejects expired authorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with blockNumber receiveWithAuthorization rejects other signature",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -1312,10 +1236,6 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC20TransferAuthorization with blockNumber receiveWithAuthorization rejects when caller is not the recipient",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC20TransferAuthorization with blockNumber receiveWithAuthorization with bytes signature accepts ERC1271 wallet signature when called by recipient",
     "cause": "eth_signTypedData_v4"
   },
@@ -1324,27 +1244,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC20TransferAuthorization with blockNumber receiveWithAuthorization with bytes signature rejects invalid ERC1271 signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with blockNumber receiveWithAuthorization with bytes signature rejects when caller is not the recipient",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC20TransferAuthorization with blockNumber transferWithAuthorization accepts holder signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with blockNumber transferWithAuthorization rejects authorization not yet valid",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with blockNumber transferWithAuthorization rejects expired authorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with blockNumber transferWithAuthorization rejects other signature",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -1356,10 +1256,6 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC20TransferAuthorization with blockNumber transferWithAuthorization treats mixed clock-flag inputs as timestamp",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC20TransferAuthorization with blockNumber transferWithAuthorization with bytes signature accepts ERC1271 wallet signature",
     "cause": "eth_signTypedData_v4"
   },
@@ -1368,63 +1264,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC20TransferAuthorization with blockNumber transferWithAuthorization with bytes signature rejects invalid ERC1271 signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC20TransferAuthorization with blockNumber transferWithAuthorization works with different keys in parallel",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp cancelAuthorization accepts authorizer signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp cancelAuthorization cancels the next nonce after consuming the previous one",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp cancelAuthorization prevents usage of canceled authorization in transferWithAuthorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp cancelAuthorization rejects cancellation of a non-next nonce in the same key sequence",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp cancelAuthorization rejects other signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp cancelAuthorization rejects reused nonce",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp cancelAuthorization shares the keyed counter between transfer and receive",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp cancelAuthorization with bytes signature accepts ERC1271 wallet signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp cancelAuthorization with bytes signature accepts authorizer signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp cancelAuthorization with bytes signature prevents usage of canceled authorization by an ERC1271 wallet",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp cancelAuthorization with bytes signature rejects invalid ERC1271 signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp receiveWithAuthorization accepts holder signature when called by recipient",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp receiveWithAuthorization rejects authorization not yet valid",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -1432,79 +1272,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC20TransferAuthorization with timestamp receiveWithAuthorization rejects other signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp receiveWithAuthorization rejects out-of-order nonces sharing the same key",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp receiveWithAuthorization rejects reused signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp receiveWithAuthorization rejects when caller is not the recipient",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp receiveWithAuthorization with bytes signature accepts ERC1271 wallet signature when called by recipient",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp receiveWithAuthorization with bytes signature accepts holder signature when called by recipient",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp receiveWithAuthorization with bytes signature rejects invalid ERC1271 signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp receiveWithAuthorization with bytes signature rejects when caller is not the recipient",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp transferWithAuthorization accepts holder signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp transferWithAuthorization rejects authorization not yet valid",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC20TransferAuthorization with timestamp transferWithAuthorization rejects expired authorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp transferWithAuthorization rejects other signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp transferWithAuthorization rejects out-of-order nonces sharing the same key",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp transferWithAuthorization rejects reused signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp transferWithAuthorization treats mixed clock-flag inputs as timestamp",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp transferWithAuthorization with bytes signature accepts ERC1271 wallet signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp transferWithAuthorization with bytes signature accepts holder signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp transferWithAuthorization with bytes signature rejects invalid ERC1271 signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20TransferAuthorization with timestamp transferWithAuthorization works with different keys in parallel",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -1593,19 +1361,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC20Votes vote with blockNumber run votes workflow delegation with signature with signature rejects bad delegatee",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20Votes vote with blockNumber run votes workflow delegation with signature with signature rejects bad nonce",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC20Votes vote with blockNumber run votes workflow delegation with signature with signature rejects expired permit",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20Votes vote with blockNumber run votes workflow delegation with signature with signature rejects reused signature",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -1627,19 +1383,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC20Votes vote with blockNumber set delegation with signature rejects bad delegatee",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20Votes vote with blockNumber set delegation with signature rejects bad nonce",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC20Votes vote with blockNumber set delegation with signature rejects expired permit",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20Votes vote with blockNumber set delegation with signature rejects reused signature",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -1717,19 +1461,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC20Votes vote with timestamp run votes workflow delegation with signature with signature rejects bad delegatee",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20Votes vote with timestamp run votes workflow delegation with signature with signature rejects bad nonce",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC20Votes vote with timestamp run votes workflow delegation with signature with signature rejects expired permit",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20Votes vote with timestamp run votes workflow delegation with signature with signature rejects reused signature",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -1746,19 +1478,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC20Votes vote with timestamp set delegation with signature rejects bad delegatee",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20Votes vote with timestamp set delegation with signature rejects bad nonce",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC20Votes vote with timestamp set delegation with signature rejects expired permit",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC20Votes vote with timestamp set delegation with signature rejects reused signature",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -1778,43 +1498,49 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC2771Forwarder execute with tampered request reverts with valid signature but mismatched value",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC2771Forwarder execute with tampered request reverts with valid signature for expired deadline",
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC2771Forwarder execute with tampered request reverts with valid signature for non-current nonce",
-    "cause": "eth_signTypedData_v4"
+    "id": "ERC2771Forwarder executeBatch with tampered requests bubbles out of gas"
   },
   {
-    "id": "ERC2771Forwarder execute with valid requests emits an event and consumes nonce for a successful request",
-    "cause": "eth_signTypedData_v4"
+    "id": "ERC2771Forwarder executeBatch with tampered requests bubbles out of gas forced by the relayer",
+    "cause": "insufficient-funds"
   },
   {
-    "id": "ERC2771Forwarder execute with valid requests reverts with an unsuccessful request",
-    "cause": "eth_signTypedData_v4"
+    "id": "ERC2771Forwarder executeBatch with tampered requests reverts with mismatched value",
+    "cause": "insufficient-funds"
   },
   {
-    "id": "ERC2771Forwarder executeBatch \"before each\" hook for \"sanity\"",
-    "cause": "eth_signTypedData_v4"
+    "id": "ERC2771Forwarder executeBatch with tampered requests when the refund receiver is a known address \"after each\" hook for \"ignores a request with a valid signature for non-current nonce\""
+  },
+  {
+    "id": "ERC2771Forwarder executeBatch with tampered requests when the refund receiver is a known address ignores a request with a valid signature for non-current nonce",
+    "cause": "insufficient-funds"
+  },
+  {
+    "id": "ERC2771Forwarder executeBatch with tampered requests when the refund receiver is the zero address reverts with at least one valid signature for expired deadline",
+    "cause": "insufficient-funds"
+  },
+  {
+    "id": "ERC2771Forwarder executeBatch with tampered requests when the refund receiver is the zero address reverts with at least one valid signature for non-current nonce",
+    "cause": "insufficient-funds"
+  },
+  {
+    "id": "ERC2771Forwarder executeBatch with valid requests atomic batch with reverting request reverts the whole batch",
+    "cause": "insufficient-funds"
+  },
+  {
+    "id": "ERC2771Forwarder executeBatch with valid requests emits events",
+    "cause": "insufficient-funds"
+  },
+  {
+    "id": "ERC2771Forwarder executeBatch with valid requests increase nonces",
+    "cause": "insufficient-funds"
   },
   {
     "id": "ERC2771Forwarder verify with tampered values returns false with valid signature for expired deadline",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC2771Forwarder verify with tampered values returns false with valid signature for non-current nonce",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC2771Forwarder verify with valid signature returns true without altering the nonce",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 mixed clock-flag inputs falls back to the timestamp clock",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -1822,31 +1548,11 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC3009 using blockNumber clock cancelAuthorization cancels an unused authorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using blockNumber clock cancelAuthorization rejects invalid signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using blockNumber clock cancelAuthorization rejects re-cancellation with ERC3009UsedAuthorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC3009 using blockNumber clock receiveWithAuthorization accepts holder signature when called by recipient",
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC3009 using blockNumber clock receiveWithAuthorization rejects invalid signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC3009 using blockNumber clock receiveWithAuthorization rejects reused nonce with ERC3009UsedAuthorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using blockNumber clock receiveWithAuthorization rejects when caller is not the recipient",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -1858,31 +1564,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC3009 using blockNumber clock transferWithAuthorization rejects at the validAfter boundary (current == validAfter)",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using blockNumber clock transferWithAuthorization rejects at the validBefore boundary (current == validBefore)",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using blockNumber clock transferWithAuthorization rejects authorization not yet valid",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using blockNumber clock transferWithAuthorization rejects expired authorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using blockNumber clock transferWithAuthorization rejects invalid signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC3009 using blockNumber clock transferWithAuthorization rejects reused nonce with ERC3009UsedAuthorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using blockNumber clock transferWithAuthorization rejects validAfter that points to an value beyond the type(uint48).max",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -1890,75 +1572,11 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC3009 using timestamp clock authorizationState returns true after the nonce is consumed",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock cancelAuthorization cancels an unused authorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock cancelAuthorization rejects invalid signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock cancelAuthorization rejects re-cancellation with ERC3009UsedAuthorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock receiveWithAuthorization accepts holder signature when called by recipient",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock receiveWithAuthorization rejects invalid signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock receiveWithAuthorization rejects reused nonce with ERC3009UsedAuthorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock receiveWithAuthorization rejects when caller is not the recipient",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock transferWithAuthorization accepts random nonces in any order",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock transferWithAuthorization emits AuthorizationUsed and Transfer with the expected balance changes",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock transferWithAuthorization rejects at the validAfter boundary (current == validAfter)",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC3009 using timestamp clock transferWithAuthorization rejects at the validBefore boundary (current == validBefore)",
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC3009 using timestamp clock transferWithAuthorization rejects authorization not yet valid",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC3009 using timestamp clock transferWithAuthorization rejects expired authorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock transferWithAuthorization rejects invalid signature",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock transferWithAuthorization rejects reused nonce with ERC3009UsedAuthorization",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock transferWithAuthorization rejects validAfter that points to an value beyond the type(uint48).max",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC3009 using timestamp clock transferWithAuthorization supports validBefore that points to an value beyond the type(uint48).max",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -2066,19 +1684,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "ERC721Votes vote with blockNumber run votes workflow delegation with signature with signature rejects bad delegatee",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC721Votes vote with blockNumber run votes workflow delegation with signature with signature rejects bad nonce",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "ERC721Votes vote with blockNumber run votes workflow delegation with signature with signature rejects expired permit",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "ERC721Votes vote with blockNumber run votes workflow delegation with signature with signature rejects reused signature",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -3409,10 +3015,6 @@
     "id": "SafeERC20 with address that has no contract code reverts on increaseAllowance"
   },
   {
-    "id": "SignatureChecker (ERC1271) \"before all\" hook: deploying in \"SignatureChecker (ERC1271)\"",
-    "cause": "personal_sign"
-  },
-  {
     "id": "SimulateCall \"before each\" hook for \"automatic simulator deployment\"",
     "cause": "insufficient-funds"
   },
@@ -3571,19 +3173,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "Votes vote with blockNumber run votes workflow delegation with signature with signature rejects bad delegatee",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "Votes vote with blockNumber run votes workflow delegation with signature with signature rejects bad nonce",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "Votes vote with blockNumber run votes workflow delegation with signature with signature rejects expired permit",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "Votes vote with blockNumber run votes workflow delegation with signature with signature rejects reused signature",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -3619,19 +3209,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "Votes vote with timestamp run votes workflow delegation with signature with signature rejects bad delegatee",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "Votes vote with timestamp run votes workflow delegation with signature with signature rejects bad nonce",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "Votes vote with timestamp run votes workflow delegation with signature with signature rejects expired permit",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "Votes vote with timestamp run votes workflow delegation with signature with signature rejects reused signature",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -3699,19 +3277,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "VotesExtended vote with blockNumber run votes workflow delegation with signature with signature rejects bad delegatee",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "VotesExtended vote with blockNumber run votes workflow delegation with signature with signature rejects bad nonce",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "VotesExtended vote with blockNumber run votes workflow delegation with signature with signature rejects expired permit",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "VotesExtended vote with blockNumber run votes workflow delegation with signature with signature rejects reused signature",
     "cause": "eth_signTypedData_v4"
   },
   {
@@ -3747,19 +3313,7 @@
     "cause": "eth_signTypedData_v4"
   },
   {
-    "id": "VotesExtended vote with timestamp run votes workflow delegation with signature with signature rejects bad delegatee",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "VotesExtended vote with timestamp run votes workflow delegation with signature with signature rejects bad nonce",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
     "id": "VotesExtended vote with timestamp run votes workflow delegation with signature with signature rejects expired permit",
-    "cause": "eth_signTypedData_v4"
-  },
-  {
-    "id": "VotesExtended vote with timestamp run votes workflow delegation with signature with signature rejects reused signature",
     "cause": "eth_signTypedData_v4"
   },
   {
