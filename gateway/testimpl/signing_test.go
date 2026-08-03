@@ -220,6 +220,16 @@ func TestTypedDataArg_UnmarshalJSON(t *testing.T) {
 	if asStr.PrimaryType != "Permit" {
 		t.Fatalf("string PrimaryType = %q", asStr.PrimaryType)
 	}
+
+	// Leading whitespace on the raw token (call UnmarshalJSON directly: top-level
+	// json.Unmarshal strips spaces before invoking the method).
+	var asPadded typedDataArg
+	if err := asPadded.UnmarshalJSON(append([]byte("  "), quoted...)); err != nil {
+		t.Fatalf("padded string: %v", err)
+	}
+	if asPadded.PrimaryType != "Permit" {
+		t.Fatalf("padded PrimaryType = %q", asPadded.PrimaryType)
+	}
 }
 
 // permitTypedData is a minimal EIP-2612-style payload for signing tests.

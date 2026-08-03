@@ -29,12 +29,12 @@ import (
 type typedDataArg apitypes.TypedData
 
 func (t *typedDataArg) UnmarshalJSON(data []byte) error {
-	if len(data) > 0 && data[0] == '"' {
-		var s string
-		if err := json.Unmarshal(data, &s); err != nil {
-			return err
-		}
-		data = []byte(s)
+	// ethers.js sends a JSON-encoded string; Hardhat may send an object.
+	// Prefer string decode first so leading whitespace still works (encoding/json
+	// allows it; a data[0]=='"' check would miss that).
+	var s string
+	if err := json.Unmarshal(data, &s); err == nil {
+		return json.Unmarshal([]byte(s), (*apitypes.TypedData)(t))
 	}
 	return json.Unmarshal(data, (*apitypes.TypedData)(t))
 }
