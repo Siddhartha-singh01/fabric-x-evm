@@ -35,7 +35,7 @@ var DefaultTestAccountBalance = new(big.Int).Mul(big.NewInt(10_000), big.NewInt(
 // Balances are applied through the normal StateDB write path and committed with
 // KVS.Handle on a synthetic block, so versions and keys match real commits and
 // any KVS backend that implements Handle works (not only LightKVS in place).
-func FundTestAccounts(kvs estorage.KVS, namespace string, addresses []common.Address, balance *big.Int) error {
+func FundTestAccounts(ctx context.Context, kvs estorage.KVS, namespace string, addresses []common.Address, balance *big.Int) error {
 	if kvs == nil {
 		return fmt.Errorf("fund test accounts: nil KVS")
 	}
@@ -45,8 +45,6 @@ func FundTestAccounts(kvs estorage.KVS, namespace string, addresses []common.Add
 	if len(addresses) == 0 {
 		return nil
 	}
-
-	ctx := context.Background()
 
 	// Latest snapshot (block 0 means latest on current KVS APIs).
 	reader, err := kvs.NewSnapshot(0)

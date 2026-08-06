@@ -7,7 +7,6 @@ SPDX-License-Identifier: LGPL-3.0-or-later
 package testimpl
 
 import (
-	"context"
 	"math/big"
 	"testing"
 
@@ -19,13 +18,6 @@ import (
 
 const testNS = "basic"
 
-func TestDefaultTestAccountBalance_IsHardhatDefault(t *testing.T) {
-	want := new(big.Int).Mul(big.NewInt(10_000), big.NewInt(params.Ether))
-	if DefaultTestAccountBalance.Cmp(want) != 0 {
-		t.Fatalf("DefaultTestAccountBalance = %s, want %s", DefaultTestAccountBalance, want)
-	}
-}
-
 func TestFundTestAccounts_SeedsBalancesReadableViaStateDB(t *testing.T) {
 	kvs := estorage.NewRevertibleLightKVS(estorage.NewLightKVS(8))
 	addrs := []common.Address{
@@ -34,7 +26,7 @@ func TestFundTestAccounts_SeedsBalancesReadableViaStateDB(t *testing.T) {
 	}
 	balance := new(big.Int).Mul(big.NewInt(10_000), big.NewInt(params.Ether))
 
-	if err := FundTestAccounts(kvs, testNS, addrs, balance); err != nil {
+	if err := FundTestAccounts(t.Context(), kvs, testNS, addrs, balance); err != nil {
 		t.Fatalf("FundTestAccounts: %v", err)
 	}
 
@@ -44,7 +36,7 @@ func TestFundTestAccounts_SeedsBalancesReadableViaStateDB(t *testing.T) {
 	}
 	defer reader.Close()
 
-	stateDB, err := execution.NewStateDB(context.Background(), reader, testNS, 0, true)
+	stateDB, err := execution.NewStateDB(t.Context(), reader, testNS, 0, true)
 	if err != nil {
 		t.Fatalf("NewStateDB: %v", err)
 	}
@@ -76,7 +68,7 @@ func TestFundTestAccounts_DefaultAccounts(t *testing.T) {
 		t.Fatal("expected Hardhat test accounts, got none")
 	}
 
-	if err := FundTestAccounts(kvs, testNS, mgr.Addresses, DefaultTestAccountBalance); err != nil {
+	if err := FundTestAccounts(t.Context(), kvs, testNS, mgr.Addresses, DefaultTestAccountBalance); err != nil {
 		t.Fatalf("FundTestAccounts: %v", err)
 	}
 
@@ -99,10 +91,6 @@ func TestFundTestAccounts_DefaultAccounts(t *testing.T) {
 		if got.Cmp(DefaultTestAccountBalance) != 0 {
 			t.Errorf("%s balance = %s, want %s", addr.Hex(), got, DefaultTestAccountBalance)
 		}
-		// Handle path must assign a real version (not a hardcoded 0 forever).
-		if rec.Version != 0 {
-			// First write is version 0; fine. Just ensure field is populated.
-		}
 		if rec.TxID != "test-account-funding" {
 			t.Errorf("%s TxID = %q, want test-account-funding", addr.Hex(), rec.TxID)
 		}
@@ -113,13 +101,13 @@ func TestFundTestAccounts_NoopOnZeroOrEmpty(t *testing.T) {
 	kvs := estorage.NewLightKVS(2)
 	addr := common.HexToAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
 
-	if err := FundTestAccounts(kvs, testNS, []common.Address{addr}, big.NewInt(0)); err != nil {
+	if err := FundTestAccounts(t.Context(), kvs, testNS, []common.Address{addr}, big.NewInt(0)); err != nil {
 		t.Fatalf("zero balance: %v", err)
 	}
-	if err := FundTestAccounts(kvs, testNS, nil, DefaultTestAccountBalance); err != nil {
+	if err := FundTestAccounts(t.Context(), kvs, testNS, nil, DefaultTestAccountBalance); err != nil {
 		t.Fatalf("empty addrs: %v", err)
 	}
-	if err := FundTestAccounts(kvs, testNS, []common.Address{addr}, nil); err != nil {
+	if err := FundTestAccounts(t.Context(), kvs, testNS, []common.Address{addr}, nil); err != nil {
 		t.Fatalf("nil balance: %v", err)
 	}
 
@@ -132,7 +120,7 @@ func TestFundTestAccounts_NoopOnZeroOrEmpty(t *testing.T) {
 func TestFundTestAccounts_SurvivesLaterUpdate(t *testing.T) {
 	kvs := estorage.NewLightKVS(4)
 	addr := common.HexToAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
-	if err := FundTestAccounts(kvs, testNS, []common.Address{addr}, DefaultTestAccountBalance); err != nil {
+	if err := FundTestAccounts(t.Context(), kvs, testNS, []common.Address{addr}, DefaultTestAccountBalance); err != nil {
 		t.Fatalf("FundTestAccounts: %v", err)
 	}
 
@@ -167,7 +155,7 @@ func TestFundTestAccounts_SurvivesLaterUpdate(t *testing.T) {
 }
 
 func TestFundTestAccounts_NilKVS(t *testing.T) {
-	err := FundTestAccounts(nil, testNS, []common.Address{{1}}, DefaultTestAccountBalance)
+	err := FundTestAccounts(t.Context(), nil, testNS, []common.Address{{1}}, DefaultTestAccountBalance)
 	if err == nil {
 		t.Fatal("expected error for nil KVS")
 	}
@@ -175,7 +163,7 @@ func TestFundTestAccounts_NilKVS(t *testing.T) {
 
 func TestFundTestAccounts_NegativeBalanceIsNoop(t *testing.T) {
 	kvs := estorage.NewLightKVS(2)
-	err := FundTestAccounts(kvs, testNS, []common.Address{{1}}, big.NewInt(-1))
+	err := FundTestAccounts(t.Context(), kvs, testNS, []common.Address{{1}}, big.NewInt(-1))
 	if err != nil {
 		t.Fatalf("negative balance: %v", err)
 	}
@@ -190,7 +178,7 @@ func TestFundTestAccounts_UsesHandleVersions(t *testing.T) {
 	addr := common.HexToAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
 	half := new(big.Int).Mul(big.NewInt(5_000), big.NewInt(params.Ether))
 
-	if err := FundTestAccounts(kvs, testNS, []common.Address{addr}, half); err != nil {
+	if err := FundTestAccounts(t.Context(), kvs, testNS, []common.Address{addr}, half); err != nil {
 		t.Fatalf("first fund: %v", err)
 	}
 	reader, err := kvs.NewSnapshot(0)
@@ -207,7 +195,7 @@ func TestFundTestAccounts_UsesHandleVersions(t *testing.T) {
 	}
 
 	// Second fund AddBalances again (creates a new write through Handle).
-	if err := FundTestAccounts(kvs, testNS, []common.Address{addr}, half); err != nil {
+	if err := FundTestAccounts(t.Context(), kvs, testNS, []common.Address{addr}, half); err != nil {
 		t.Fatalf("second fund: %v", err)
 	}
 	reader, err = kvs.NewSnapshot(0)

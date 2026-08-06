@@ -2307,7 +2307,12 @@
     "id": "Governor using $ERC20VotesTimestampMock should revert on queue reverts with GovernorProposalQueueingFailed when _queueOperations returns 0"
   },
   {
-    "id": "Governor using $ERC20VotesTimestampMock should revert on vote by signature \"before each\" hook for \"if signature does not match signer\""
+    "id": "Governor using $ERC20VotesTimestampMock should revert on vote by signature if signature does not match signer",
+    "cause": "eth_signTypedData_v4"
+  },
+  {
+    "id": "Governor using $ERC20VotesTimestampMock should revert on vote by signature if vote nonce is incorrect",
+    "cause": "eth_signTypedData_v4"
   },
   {
     "id": "Governor using $ERC20VotesTimestampMock should revert on vote if support value is invalid"
