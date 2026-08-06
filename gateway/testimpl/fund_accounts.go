@@ -10,12 +10,17 @@ DO NOT use in production environments.
 package testimpl
 
 import (
+	"context"
 	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/tracing"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/holiman/uint256"
+	"github.com/hyperledger/fabric-x-evm/endorser/execution"
 	estorage "github.com/hyperledger/fabric-x-evm/endorser/storage"
+	"github.com/hyperledger/fabric-x-sdk/blocks"
 )
 
 // DefaultTestAccountBalance is Hardhat Network's default genesis balance per
@@ -27,12 +32,13 @@ var DefaultTestAccountBalance = new(big.Int).Mul(big.NewInt(10_000), big.NewInt(
 // endorser KVS. Intended for test-RPC / testnode startup only: production
 // accounts correctly start at zero.
 //
-// Writes land in the current snapshot in place (no history advance), so the
-// funded balances look like genesis state and survive later Handle/Update
-// clones as well as reverts that restore pre-funding block numbers.
-//
-// kvs must be *estorage.LightKVS or *estorage.RevertibleLightKVS (memory DB).
+// Balances are applied through the normal StateDB write path and committed with
+// KVS.Handle on a synthetic block, so versions and keys match real commits and
+// any KVS backend that implements Handle works (not only LightKVS in place).
 func FundTestAccounts(kvs estorage.KVS, namespace string, addresses []common.Address, balance *big.Int) error {
+	if kvs == nil {
+		return fmt.Errorf("fund test accounts: nil KVS")
+	}
 	if balance == nil || balance.Sign() <= 0 {
 		return nil
 	}
@@ -40,48 +46,56 @@ func FundTestAccounts(kvs estorage.KVS, namespace string, addresses []common.Add
 		return nil
 	}
 
-	snap, err := currentSnapshot(kvs)
+	ctx := context.Background()
+
+	// Latest snapshot (block 0 means latest on current KVS APIs).
+	reader, err := kvs.NewSnapshot(0)
 	if err != nil {
-		return err
+		return fmt.Errorf("fund test accounts: snapshot: %w", err)
+	}
+	defer reader.Close()
+
+	stateDB, err := execution.NewStateDB(ctx, reader, namespace, 0, true)
+	if err != nil {
+		return fmt.Errorf("fund test accounts: statedb: %w", err)
 	}
 
-	balBytes := balance.Bytes()
+	amount := uint256.MustFromBig(balance)
 	for _, addr := range addresses {
-		// Key layout matches LightKVS.Reader.Get / collectWrites:
-		// fullKey = namespace + ":" + accKey(addr, "bal")
-		// accKey  = "acc:" + addr.Hex() + ":bal"
-		key := namespace + ":acc:" + addr.Hex() + ":bal"
-		// Copy bytes so callers can reuse the balance buffer later.
-		val := append([]byte(nil), balBytes...)
-		snap.Data[key] = &estorage.ValueVersion{
-			Value:    val,
-			BlockNum: snap.BlockNumber,
-			TxNum:    0,
-			Version:  0,
-			TxID:     "test-account-funding",
-		}
+		stateDB.CreateAccount(addr)
+		stateDB.AddBalance(addr, amount, tracing.BalanceChangeUnspecified)
+	}
+
+	rws := stateDB.Result()
+	if len(rws.Writes) == 0 {
+		return fmt.Errorf("fund test accounts: statedb produced no writes")
+	}
+
+	blockNum, err := kvs.BlockNumber(ctx)
+	if err != nil {
+		return fmt.Errorf("fund test accounts: block number: %w", err)
+	}
+
+	// Synthetic block through the same Handle path real commits use, so Update
+	// assigns versions and any BlockHandler-backed KVS accepts the writes.
+	block := blocks.Block{
+		Number: blockNum,
+		Transactions: []blocks.Transaction{
+			{
+				ID:     "test-account-funding",
+				Number: 0,
+				Valid:  true,
+				NsRWS: []blocks.NsReadWriteSet{
+					{
+						Namespace: namespace,
+						RWS:       rws,
+					},
+				},
+			},
+		},
+	}
+	if err := kvs.Handle(ctx, block); err != nil {
+		return fmt.Errorf("fund test accounts: handle: %w", err)
 	}
 	return nil
-}
-
-func currentSnapshot(kvs estorage.KVS) (*estorage.Snapshot, error) {
-	switch k := kvs.(type) {
-	case *estorage.RevertibleLightKVS:
-		if k.LightKVS == nil {
-			return nil, fmt.Errorf("fund test accounts: RevertibleLightKVS has nil LightKVS")
-		}
-		snap := k.Current.Load()
-		if snap == nil {
-			return nil, fmt.Errorf("fund test accounts: KVS has no current snapshot")
-		}
-		return snap, nil
-	case *estorage.LightKVS:
-		snap := k.Current.Load()
-		if snap == nil {
-			return nil, fmt.Errorf("fund test accounts: KVS has no current snapshot")
-		}
-		return snap, nil
-	default:
-		return nil, fmt.Errorf("fund test accounts: KVS type %T does not support in-place funding (need memory LightKVS)", kvs)
-	}
 }

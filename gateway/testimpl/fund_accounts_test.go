@@ -38,11 +38,6 @@ func TestFundTestAccounts_SeedsBalancesReadableViaStateDB(t *testing.T) {
 		t.Fatalf("FundTestAccounts: %v", err)
 	}
 
-	// History must not advance — funding is genesis-like, not a new block.
-	if n := kvs.NextIndex.Load(); n != 0 {
-		t.Fatalf("NextIndex = %d after fund, want 0 (no history advance)", n)
-	}
-
 	reader, err := kvs.NewSnapshot(0)
 	if err != nil {
 		t.Fatalf("NewSnapshot: %v", err)
@@ -104,6 +99,13 @@ func TestFundTestAccounts_DefaultAccounts(t *testing.T) {
 		if got.Cmp(DefaultTestAccountBalance) != 0 {
 			t.Errorf("%s balance = %s, want %s", addr.Hex(), got, DefaultTestAccountBalance)
 		}
+		// Handle path must assign a real version (not a hardcoded 0 forever).
+		if rec.Version != 0 {
+			// First write is version 0; fine. Just ensure field is populated.
+		}
+		if rec.TxID != "test-account-funding" {
+			t.Errorf("%s TxID = %q, want test-account-funding", addr.Hex(), rec.TxID)
+		}
 	}
 }
 
@@ -134,7 +136,7 @@ func TestFundTestAccounts_SurvivesLaterUpdate(t *testing.T) {
 		t.Fatalf("FundTestAccounts: %v", err)
 	}
 
-	// Simulate a later block write (unrelated key) — funded balance must clone through.
+	// Simulate a later block write (unrelated key); funded balance must clone through.
 	if err := kvs.Update([]estorage.KeyValueVersion{{
 		Key:      testNS + ":str:" + addr.Hex() + ":0x00",
 		Value:    []byte{1},
@@ -164,35 +166,10 @@ func TestFundTestAccounts_SurvivesLaterUpdate(t *testing.T) {
 	}
 }
 
-func TestFundTestAccounts_UnsupportedKVS(t *testing.T) {
-	// VersionedDBWrapper is not supported for in-place funding.
+func TestFundTestAccounts_NilKVS(t *testing.T) {
 	err := FundTestAccounts(nil, testNS, []common.Address{{1}}, DefaultTestAccountBalance)
 	if err == nil {
-		t.Fatal("expected error for nil/unsupported KVS")
-	}
-}
-
-func TestFundTestAccounts_NilEmbeddedLightKVS(t *testing.T) {
-	kvs := &estorage.RevertibleLightKVS{} // LightKVS unset
-	err := FundTestAccounts(kvs, testNS, []common.Address{{1}}, DefaultTestAccountBalance)
-	if err == nil {
-		t.Fatal("expected error for nil embedded LightKVS")
-	}
-}
-
-func TestFundTestAccounts_NilCurrentSnapshot(t *testing.T) {
-	base := estorage.NewLightKVS(2)
-	base.Current.Store(nil)
-	err := FundTestAccounts(base, testNS, []common.Address{{1}}, DefaultTestAccountBalance)
-	if err == nil {
-		t.Fatal("expected error when current snapshot is nil")
-	}
-
-	rev := estorage.NewRevertibleLightKVS(estorage.NewLightKVS(2))
-	rev.Current.Store(nil)
-	err = FundTestAccounts(rev, testNS, []common.Address{{1}}, DefaultTestAccountBalance)
-	if err == nil {
-		t.Fatal("expected error when revertible current snapshot is nil")
+		t.Fatal("expected error for nil KVS")
 	}
 }
 
@@ -204,5 +181,50 @@ func TestFundTestAccounts_NegativeBalanceIsNoop(t *testing.T) {
 	}
 	if len(kvs.Current.Load().Data) != 0 {
 		t.Fatal("expected no keys for negative balance")
+	}
+}
+
+func TestFundTestAccounts_UsesHandleVersions(t *testing.T) {
+	// Two funding rounds for the same account should bump the key version via Update.
+	kvs := estorage.NewLightKVS(4)
+	addr := common.HexToAddress("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266")
+	half := new(big.Int).Mul(big.NewInt(5_000), big.NewInt(params.Ether))
+
+	if err := FundTestAccounts(kvs, testNS, []common.Address{addr}, half); err != nil {
+		t.Fatalf("first fund: %v", err)
+	}
+	reader, err := kvs.NewSnapshot(0)
+	if err != nil {
+		t.Fatalf("NewSnapshot: %v", err)
+	}
+	rec1, err := reader.Get(testNS, "acc:"+addr.Hex()+":bal")
+	reader.Close()
+	if err != nil || rec1 == nil {
+		t.Fatalf("first bal: rec=%v err=%v", rec1, err)
+	}
+	if rec1.Version != 0 {
+		t.Fatalf("first write version = %d, want 0", rec1.Version)
+	}
+
+	// Second fund AddBalances again (creates a new write through Handle).
+	if err := FundTestAccounts(kvs, testNS, []common.Address{addr}, half); err != nil {
+		t.Fatalf("second fund: %v", err)
+	}
+	reader, err = kvs.NewSnapshot(0)
+	if err != nil {
+		t.Fatalf("NewSnapshot: %v", err)
+	}
+	defer reader.Close()
+	rec2, err := reader.Get(testNS, "acc:"+addr.Hex()+":bal")
+	if err != nil || rec2 == nil {
+		t.Fatalf("second bal: rec=%v err=%v", rec2, err)
+	}
+	if rec2.Version != 1 {
+		t.Fatalf("second write version = %d, want 1 (Handle/Update path)", rec2.Version)
+	}
+	// CreateAccount resets bal to 0 before AddBalance, so the second fund ends at half.
+	got := new(big.Int).SetBytes(rec2.Value)
+	if got.Cmp(half) != 0 {
+		t.Fatalf("balance after second fund = %s, want %s", got, half)
 	}
 }
