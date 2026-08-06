@@ -200,7 +200,7 @@ func buildApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, logge
 		}
 
 		// Pre-fund known Hardhat test EOAs so value transfers pass the balance
-		// check (issue #254). Test-RPC / testnode only — production stays at zero.
+		// check (issue #254). Test RPC / testnode only. Production accounts stay at zero.
 		if err := testimpl.FundTestAccounts(ctx, lightKVS, cfg.Network.Namespace, testAccountMgr.Addresses, testimpl.DefaultTestAccountBalance); err != nil {
 			return nil, fmt.Errorf("failed to fund test accounts: %w", err)
 		}
