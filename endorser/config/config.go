@@ -37,7 +37,7 @@ const (
 type DB struct {
 	Database    string `mapstructure:"database" yaml:"database"`
 	ConnString  string `mapstructure:"connection-string" yaml:"connection-string"`
-	HistorySize int    `mapstructure:"history_size" yaml:"history_size"` // number of historical snapshots to keep (default: 2, use 128 for test RPC)
+	HistorySize int    `mapstructure:"history_size" yaml:"history_size"` // number of historical snapshots to keep (default: 2; test RPC uses a large value)
 }
 
 // ValidateDatabaseProtocol rejects endorser backend/protocol combinations that

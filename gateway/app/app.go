@@ -96,8 +96,10 @@ func newApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, enableT
 	endorserSyncs := make([]*network.Synchronizer, 0, len(cfg.Endorsers))
 	var firstKVS estorage.KVS // Keep first endorser's KVS for test server
 	for i, ecfg := range cfg.Endorsers {
+		// Test RPC needs a large sequential history window (see testnode); production
+		// only needs a couple of snapshots for the synchronizer.
 		if enableTestRPC {
-			ecfg.Database.HistorySize = 128
+			ecfg.Database.HistorySize = 16384
 		} else if ecfg.Database.HistorySize == 0 {
 			ecfg.Database.HistorySize = 2
 		}
@@ -196,6 +198,13 @@ func buildApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, logge
 		if err != nil {
 			return nil, fmt.Errorf("failed to load test accounts: %w", err)
 		}
+
+		// Pre-fund known Hardhat test EOAs so value transfers pass the balance
+		// check (issue #254). Test RPC / testnode only. Production accounts stay at zero.
+		if err := testimpl.FundTestAccounts(ctx, lightKVS, cfg.Network.Namespace, testAccountMgr.Addresses, testimpl.DefaultTestAccountBalance); err != nil {
+			return nil, fmt.Errorf("failed to fund test accounts: %w", err)
+		}
+		appLogger.Infof("Funded %d test accounts with %s wei each", len(testAccountMgr.Addresses), testimpl.DefaultTestAccountBalance.String())
 
 		revertibleKVS, ok := lightKVS.(estorage.Revertible)
 		if !ok {
