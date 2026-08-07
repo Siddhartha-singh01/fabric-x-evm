@@ -113,8 +113,8 @@ func (e *EthClient) txForDeploy(ctx context.Context, nonceProvider NonceProvider
 	// Determine the from address to get the nonce
 	from := crypto.PubkeyToAddress(e.priv.PublicKey)
 
-	// Get the nonce from the provider
-	nonce, err := nonceProvider.NonceAt(ctx, from, bn)
+	// Nonce from latest state (nil). bn is only for MakeSigner, not for the snapshot.
+	nonce, err := nonceProvider.NonceAt(ctx, from, nil)
 	if err != nil {
 		return nil, common.Address{}, err
 	}
@@ -170,8 +170,8 @@ func (e *EthClient) TxForCall(ctx context.Context, nonceProvider NonceProvider, 
 	// Determine the from address to get the nonce
 	from := crypto.PubkeyToAddress(e.priv.PublicKey)
 
-	// Get the nonce from the provider
-	nonce, err := nonceProvider.NonceAt(ctx, from, bn)
+	// Nonce from latest state (nil). bn is only for MakeSigner, not for the snapshot.
+	nonce, err := nonceProvider.NonceAt(ctx, from, nil)
 	if err != nil {
 		return nil, err
 	}
