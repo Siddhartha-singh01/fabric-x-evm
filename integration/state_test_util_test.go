@@ -31,5 +31,5 @@ func TestMakePreStateWithDualState(t *testing.T) {
 	if st.StateDB == nil {
 		t.Fatal("expected non-nil StateDB")
 	}
-	st.Close()
+	t.Cleanup(st.Close)
 }

@@ -43,7 +43,7 @@ func TestNewBalancePrimingExecutor_UsesLatestSnapshot(t *testing.T) {
 	if ex == nil || ex.Executor == nil {
 		t.Fatal("expected non-nil executor")
 	}
-	ex.Close()
+	t.Cleanup(func() { ex.Close() })
 }
 
 func TestNewBalancePrimingExecutor_WithPrimingEnabled(t *testing.T) {
@@ -63,7 +63,7 @@ func TestNewBalancePrimingExecutor_WithPrimingEnabled(t *testing.T) {
 	if _, ok := ex.state.(*BalancePrimingWrapper); !ok {
 		t.Fatalf("expected *BalancePrimingWrapper, got %T", ex.state)
 	}
-	ex.Close()
+	t.Cleanup(func() { ex.Close() })
 }
 
 func TestNewExecutorWrapper_UsesLatestSnapshot(t *testing.T) {
@@ -78,5 +78,5 @@ func TestNewExecutorWrapper_UsesLatestSnapshot(t *testing.T) {
 	if ex.state == nil {
 		t.Fatal("expected DualStateDB")
 	}
-	ex.Close()
+	t.Cleanup(func() { ex.Close() })
 }
