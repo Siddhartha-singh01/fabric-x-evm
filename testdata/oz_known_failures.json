@@ -1892,10 +1892,6 @@
     "id": "Governor using $ERC20VotesTimestampMock should revert on queue reverts with GovernorProposalQueueingFailed when _queueOperations returns 0"
   },
   {
-    "id": "Governor using $ERC20VotesTimestampMock should revert on vote by signature \"before each\" hook for \"if signature does not match signer\"",
-    "cause": "execution reverted: arithmetic underflow or overflow"
-  },
-  {
     "id": "Governor using $ERC20VotesTimestampMock should revert on vote if support value is invalid"
   },
   {
