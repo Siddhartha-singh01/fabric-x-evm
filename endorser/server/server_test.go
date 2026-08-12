@@ -13,6 +13,7 @@ import (
 	"math/big"
 	"net"
 	"testing"
+	"time"
 
 	"github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
@@ -49,7 +50,7 @@ type stubService struct {
 	gotBlock *big.Int
 }
 
-func (s *stubService) Execute(_ context.Context, inv endorsement.Invocation, _ *types.Transaction) (*peer.ProposalResponse, error) {
+func (s *stubService) Execute(_ context.Context, inv endorsement.Invocation, _ *types.Transaction, _ time.Time) (*peer.ProposalResponse, error) {
 	s.gotInv = inv
 	return s.execResp, s.execErr
 }

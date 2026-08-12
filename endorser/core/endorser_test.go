@@ -12,6 +12,7 @@ import (
 	"errors"
 	"math/big"
 	"testing"
+	"time"
 
 	"github.com/ethereum/go-ethereum"
 	ethcommon "github.com/ethereum/go-ethereum/common"
@@ -78,7 +79,7 @@ type stubEngine struct {
 	nonce       uint64
 }
 
-func (s *stubEngine) Execute(context.Context, *types.Transaction) (endorsement.ExecutionResult, error) {
+func (s *stubEngine) Execute(context.Context, *types.Transaction, uint64) (endorsement.ExecutionResult, error) {
 	return endorsement.ExecutionResult{}, s.execErr
 }
 func (s *stubEngine) Call(ethereum.CallMsg, *big.Int) ([]byte, error) {
@@ -115,7 +116,7 @@ func processEVMTxWithEngineErr(t *testing.T, execErr error) *peer.ProposalRespon
 	f := &Endorser{Engine: &stubEngine{execErr: execErr}}
 	tx := types.NewTx(&types.LegacyTx{Gas: 21000, GasPrice: big.NewInt(0)})
 
-	resp, err := f.Execute(context.Background(), endorsement.Invocation{}, tx)
+	resp, err := f.Execute(context.Background(), endorsement.Invocation{}, tx, time.Now())
 	if err != nil {
 		t.Fatalf("ProcessEVMTransaction must encode the failure in the response, got Go error: %v", err)
 	}
@@ -204,7 +205,7 @@ func TestExecute_Success(t *testing.T) {
 	want := &peer.ProposalResponse{Response: &peer.Response{Status: common.StatusOK}}
 	f := &Endorser{Engine: &stubEngine{}, builder: &stubBuilder{resp: want}}
 
-	got, err := f.Execute(context.Background(), endorsement.Invocation{}, types.NewTx(&types.LegacyTx{}))
+	got, err := f.Execute(context.Background(), endorsement.Invocation{}, types.NewTx(&types.LegacyTx{}), time.Now())
 	if err != nil {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -217,7 +218,7 @@ func TestExecute_Success(t *testing.T) {
 func TestExecute_EndorseFailureIs500(t *testing.T) {
 	f := &Endorser{Engine: &stubEngine{}, builder: &stubBuilder{err: errors.New("sign: hsm down")}}
 
-	resp, err := f.Execute(context.Background(), endorsement.Invocation{}, types.NewTx(&types.LegacyTx{}))
+	resp, err := f.Execute(context.Background(), endorsement.Invocation{}, types.NewTx(&types.LegacyTx{}), time.Now())
 	if err != nil {
 		t.Fatalf("endorse failure must ride in the response, got Go error: %v", err)
 	}

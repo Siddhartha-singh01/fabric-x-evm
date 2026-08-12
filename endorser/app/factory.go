@@ -100,6 +100,11 @@ func NewEndorserCore(
 	return end, kvs, builder, nil
 }
 
+// applyTimestampBounds sets #277 clock skew limits on a newly built endorser.
+func applyTimestampBounds(end *core.Endorser, cfg config.Endorser) {
+	end.SetTimestampBounds(cfg.TimestampFutureSkew(), cfg.TimestampPastSkew())
+}
+
 // NewEndorser creates a single embedded, self-syncing endorser instance: it resolves an
 // MSP-based signer and owns a synchronizer that keeps its KVS current from the committer.
 // This is the canonical way to create a production endorser.
@@ -121,6 +126,7 @@ func NewEndorser(
 	if err != nil {
 		return nil, nil, nil, err
 	}
+	applyTimestampBounds(end, cfg)
 
 	var sync *sdknet.Synchronizer
 	switch network.Protocol {

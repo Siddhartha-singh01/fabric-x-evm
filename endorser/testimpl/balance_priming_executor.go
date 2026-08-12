@@ -81,7 +81,7 @@ func NewBalancePrimingExecutor(
 		)
 	}
 
-	executor, err := execution.NewExecutor(finalStateDB, reader, nil, evmConfig)
+	executor, err := execution.NewExecutor(finalStateDB, reader, nil, execution.DefaultBlockTime, evmConfig)
 	if err != nil {
 		reader.Close()
 		return nil, err
