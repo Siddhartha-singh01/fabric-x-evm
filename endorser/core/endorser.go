@@ -113,10 +113,15 @@ func (f *Endorser) clock() time.Time {
 	return time.Now()
 }
 
-// validateRequestTimestamp checks that ts is within [now-maxPast, now+maxFuture].
+// validateRequestTimestamp checks that ts is within [now-maxPast, now+maxFuture]
+// and is representable as a non-negative Unix second (EVM block.timestamp).
 func validateRequestTimestamp(ts, now time.Time, maxFuture, maxPast time.Duration) error {
 	if ts.IsZero() {
 		return fmt.Errorf("request timestamp is required")
+	}
+	// Negative Unix seconds would wrap if cast to uint64 for the EVM context.
+	if ts.Unix() < 0 {
+		return fmt.Errorf("request timestamp must be on or after the Unix epoch")
 	}
 	if ts.After(now.Add(maxFuture)) {
 		return fmt.Errorf("request timestamp %s is more than %s in the future", ts.UTC().Format(time.RFC3339), maxFuture)

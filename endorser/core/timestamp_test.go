@@ -70,6 +70,9 @@ func TestValidateRequestTimestamp_RejectsOutsideBounds(t *testing.T) {
 	if err := validateRequestTimestamp(now.Add(-(past + time.Second)), now, future, past); err == nil {
 		t.Error("too far past: want error")
 	}
+	if err := validateRequestTimestamp(time.Unix(-1, 0), now, future, 1<<62); err == nil {
+		t.Error("pre-epoch timestamp: want error")
+	}
 }
 
 func TestValidateRequestTimestamp_NoClamping(t *testing.T) {
