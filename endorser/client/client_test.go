@@ -120,6 +120,9 @@ func TestExecute_MapsResponseAndForwardsRequest(t *testing.T) {
 	if inW.GetTxId() != "tx1" || inW.GetChaincodeName() != "ns" || inW.GetChaincodeVersion() != "1.0" || len(inW.GetArgs()) != 2 {
 		t.Errorf("forwarded invocation = %+v", inW)
 	}
+	if mock.gotExec.GetTimestamp() == 0 {
+		t.Error("forwarded timestamp = 0, want non-zero Unix second")
+	}
 }
 
 func TestExecute_TransportErrorIsReturned(t *testing.T) {

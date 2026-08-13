@@ -37,6 +37,36 @@ func (c *captureEngine) Execute(_ context.Context, _ *types.Transaction, blockTi
 	return endorsement.ExecutionResult{Status: common.StatusOK}, nil
 }
 
+func TestNew_DefaultSkewBounds(t *testing.T) {
+	f, err := New(nil, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if f.maxFuture != config.DefaultTimestampFutureSkew || f.maxPast != config.DefaultTimestampPastSkew {
+		t.Fatalf("skew = %v/%v, want defaults %v/%v", f.maxFuture, f.maxPast,
+			config.DefaultTimestampFutureSkew, config.DefaultTimestampPastSkew)
+	}
+	if f.now == nil {
+		t.Fatal("now clock not set")
+	}
+}
+
+func TestSetTimestampBounds_DefaultsAndCustom(t *testing.T) {
+	f := &Endorser{}
+	f.SetTimestampBounds(0, 0)
+	if f.maxFuture != config.DefaultTimestampFutureSkew || f.maxPast != config.DefaultTimestampPastSkew {
+		t.Fatalf("zero args: skew = %v/%v, want defaults", f.maxFuture, f.maxPast)
+	}
+	f.SetTimestampBounds(-1, -5)
+	if f.maxFuture != config.DefaultTimestampFutureSkew || f.maxPast != config.DefaultTimestampPastSkew {
+		t.Fatalf("negative args: skew = %v/%v, want defaults", f.maxFuture, f.maxPast)
+	}
+	f.SetTimestampBounds(3*time.Second, 9*time.Second)
+	if f.maxFuture != 3*time.Second || f.maxPast != 9*time.Second {
+		t.Fatalf("custom: skew = %v/%v", f.maxFuture, f.maxPast)
+	}
+}
+
 func TestValidateRequestTimestamp_AcceptsWithinBounds(t *testing.T) {
 	now := time.Date(2026, 8, 12, 12, 0, 0, 0, time.UTC)
 	future := config.DefaultTimestampFutureSkew
