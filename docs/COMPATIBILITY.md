@@ -264,7 +264,7 @@ network values.
 | `DIFFICULTY` / `PREVRANDAO` | `0x000…` (stub — do not rely on for randomness) | current random / difficulty |
 | `BASEFEE`                   | `0`                                             | actual EIP-1559 base fee    |
 | `BLOBBASEFEE`               | ~1 wei (calculated from `ExcessBlobGas = 0`)    | actual EIP-4844 blob fee    |
-| `TIMESTAMP`                 | gateway-supplied Unix second on **tx execute** (see below); still `1_000_000` on `eth_call` | actual Unix timestamp of the block |
+| `TIMESTAMP`                 | gateway-supplied Unix second on **tx execute**; wall clock on **eth_call** (see below) | actual Unix timestamp of the block |
 | `NUMBER`                    | `0` on tx execution; block arg on `eth_call`    | Ethereum block number       |
 
 **Transaction execution (`TIMESTAMP`)**: the gateway stamps wall time once per
@@ -282,9 +282,9 @@ never set for execute), even though state is read from the latest committed bloc
 
 **`eth_call` with a block number**: the state DB is correctly snapshotted at the requested height,
 and the EVM `NUMBER` opcode is set to that block-number argument (`0` for `latest`). `TIMESTAMP` on
-the call path is still `1_000_000` regardless of the requested block. Contracts that read
-`block.timestamp` inside a view function therefore see a fixed, non-historical value (and
-`block.number` reads `0` for the common `latest` call).
+the call path is the endorser's wall-clock Unix second (not historical and not the legacy
+`1_000_000` stub), so view functions that check role grant schedules / delays see a time close to
+recent `Execute` stamps. Historical block timestamps are not reconstructed.
 
 ---
 

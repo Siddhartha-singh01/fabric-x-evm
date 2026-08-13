@@ -12,6 +12,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/accounts/abi"
@@ -67,8 +68,9 @@ func NewEVMEngine(namespace string, kvs KVSSnapshotter, evmConfig EVMConfig, mon
 	}
 }
 
-// DefaultBlockTime is the legacy hardcoded EVM block.timestamp (still used for
-// eth_call and when no gateway-supplied timestamp is available).
+// DefaultBlockTime is used only when Execute receives blockTime 0 (no gateway
+// value). eth_call uses wall-clock Unix seconds so TIMESTAMP matches recent
+// Execute results (issue #277).
 const DefaultBlockTime = uint64(1_000_000)
 
 // Execute runs a state-changing transaction and returns the EVM result,
@@ -118,10 +120,14 @@ func (e *EVMEngine) Execute(ctx context.Context, tx *types.Transaction, blockTim
 
 // Call executes a read-only call (eth_call semantics) against the state at blockNumber
 // (0 / nil = latest). The EVM block context is not reconstructed for historical blocks —
-// with all forks enabled from block 0 this is harmless. Call still uses DefaultBlockTime;
-// gateway-supplied timestamps apply to Execute only (#277).
+// with all forks enabled from block 0 this is harmless.
+//
+// TIMESTAMP uses the endorser's wall clock (Unix seconds) so view functions see a time
+// consistent with gateway-stamped Execute (issue #277). Historical block times are not
+// reconstructed; every call gets "now".
 func (e *EVMEngine) Call(msg ethereum.CallMsg, blockNumber *big.Int) ([]byte, error) {
-	ex, err := e.newExecutor(blockNumber, DefaultBlockTime)
+	blockTime := uint64(time.Now().Unix())
+	ex, err := e.newExecutor(blockNumber, blockTime)
 	if err != nil {
 		return nil, err
 	}

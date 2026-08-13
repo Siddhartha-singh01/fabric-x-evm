@@ -113,6 +113,8 @@ func processEVMTxWithEngineErr(t *testing.T, execErr error) *peer.ProposalRespon
 	t.Helper()
 
 	// The stub engine ignores the tx, so it need not be signed.
+	// Zero maxPast/maxFuture must still use production defaults so a wall-clock
+	// request timestamp is accepted (issue #277 / CI Quick Tests).
 	f := &Endorser{Engine: &stubEngine{execErr: execErr}}
 	tx := types.NewTx(&types.LegacyTx{Gas: 21000, GasPrice: big.NewInt(0)})
 
@@ -121,6 +123,19 @@ func processEVMTxWithEngineErr(t *testing.T, execErr error) *peer.ProposalRespon
 		t.Fatalf("ProcessEVMTransaction must encode the failure in the response, got Go error: %v", err)
 	}
 	return resp
+}
+
+// Zero-value skew fields on Endorser must not reject a current timestamp.
+func TestExecute_ZeroSkewFieldsAcceptNow(t *testing.T) {
+	want := &peer.ProposalResponse{Response: &peer.Response{Status: common.StatusOK}}
+	f := &Endorser{Engine: &stubEngine{}, builder: &stubBuilder{resp: want}}
+	got, err := f.Execute(context.Background(), endorsement.Invocation{}, types.NewTx(&types.LegacyTx{}), time.Now())
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if got != want {
+		t.Fatalf("resp = %v, want %v (status %v)", got, want, got.GetResponse())
+	}
 }
 
 // A valid tx whose execution failed surfaces as StatusExecFailure (endorsable).

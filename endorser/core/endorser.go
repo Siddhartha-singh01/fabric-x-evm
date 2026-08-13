@@ -85,7 +85,8 @@ func (f *Endorser) SetTimestampBounds(future, past time.Duration) {
 // It is validated against the endorser's clock skew window and then applied as-is
 // (no clamping) so all endorsers share the same value.
 func (f *Endorser) Execute(ctx context.Context, inv endorsement.Invocation, ethTx *types.Transaction, timestamp time.Time) (*peer.ProposalResponse, error) {
-	if err := validateRequestTimestamp(timestamp, f.clock(), f.maxFuture, f.maxPast); err != nil {
+	future, past := f.skewBounds()
+	if err := validateRequestTimestamp(timestamp, f.clock(), future, past); err != nil {
 		// Application outcome: invalid request from a misbehaving/skewed gateway.
 		return response(nil, execution.NewTxRejected(err)), nil
 	}
@@ -111,6 +112,19 @@ func (f *Endorser) clock() time.Time {
 		return f.now()
 	}
 	return time.Now()
+}
+
+// skewBounds returns future/past windows, applying the same defaults as
+// SetTimestampBounds when fields are zero (e.g. Endorser literals in tests).
+func (f *Endorser) skewBounds() (future, past time.Duration) {
+	future, past = f.maxFuture, f.maxPast
+	if future <= 0 {
+		future = config.DefaultTimestampFutureSkew
+	}
+	if past <= 0 {
+		past = config.DefaultTimestampPastSkew
+	}
+	return future, past
 }
 
 // validateRequestTimestamp checks that ts is within [now-maxPast, now+maxFuture]

@@ -16,32 +16,7 @@
     "cause": "gas-stub"
   },
   {
-    "id": "AccessControlDefaultAdminRules accepts transfer admin schedule not passed should revert if block.timestamp is equal to schedule",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessControlDefaultAdminRules accepts transfer admin schedule not passed should revert if block.timestamp is less to schedule",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
     "id": "AccessControlDefaultAdminRules accepts transfer admin when caller is pending default admin and delay has passed accepts a transfer and changes default admin",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessControlDefaultAdminRules begins a default admin transfer when there is a pending admin transfer should be able to begin a transfer again after acceptSchedule passes",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessControlDefaultAdminRules begins a default admin transfer when there is a pending admin transfer should be able to begin a transfer again before acceptSchedule passes",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessControlDefaultAdminRules begins a default admin transfer when there is a pending admin transfer should be able to begin a transfer again exactly when acceptSchedule passes",
     "cause": "fixed-timestamp",
     "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
   },
@@ -177,21 +152,6 @@
     "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
   },
   {
-    "id": "AccessControlDefaultAdminRules renounces admin renouncing the admin role when not an admin doesn't affect the schedule",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessControlDefaultAdminRules renounces admin schedule not passed reverts if block.timestamp is equal to schedule",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessControlDefaultAdminRules renounces admin schedule not passed reverts if block.timestamp is less to schedule",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
     "id": "AccessControlDefaultAdminRules rollbacks a delay change when there is a pending delay should not emit a cancellation event after the delay schedule passes",
     "cause": "fixed-timestamp",
     "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
@@ -239,19 +199,6 @@
     "cause": "execution reverted"
   },
   {
-    "id": "AccessManager #execute restrictions when the manager is open when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation has expired reverts as AccessManagerExpired",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessManager #execute restrictions when the manager is open when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds called directly",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager #execute restrictions when the manager is open when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds via execute",
-    "cause": "execution reverted"
-  },
-  {
     "id": "AccessManager #execute reverts executing twice",
     "cause": "execution reverted"
   },
@@ -269,9 +216,6 @@
   {
     "id": "AccessManager #schedule restrictions when the manager is open when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is delayed when caller has an execution delay when grant delay has taken effect succeeds",
     "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager #schedule reverts if the specified execution date is before the current timestamp + caller execution delay"
   },
   {
     "id": "AccessManager #schedule schedules an operation at the minimum execution date if no specified execution date (when == 0)"
@@ -296,19 +240,6 @@
     "cause": "execution reverted"
   },
   {
-    "id": "AccessManager access managed self operations when calling a restricted target function restrictions when the manager is open when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation has expired reverts as AccessManagerExpired",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessManager access managed self operations when calling a restricted target function restrictions when the manager is open when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds called directly",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager access managed self operations when calling a restricted target function restrictions when the manager is open when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds via execute",
-    "cause": "execution reverted"
-  },
-  {
     "id": "AccessManager access managed target operations when calling a restricted target function restrictions when the manager is open when the call comes from the manager (msg.sender == manager) \"before each\" hook: define caller as manager for \"succeeds\"",
     "cause": "hardhat_setBalance"
   },
@@ -325,19 +256,6 @@
   },
   {
     "id": "AccessManager access managed target operations when calling a restricted target function restrictions when the manager is open when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is delayed when caller has no execution delay when grant delay has taken effect succeeds via execute",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager access managed target operations when calling a restricted target function restrictions when the manager is open when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation has expired reverts as AccessManagerExpired",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessManager access managed target operations when calling a restricted target function restrictions when the manager is open when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds called directly",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager access managed target operations when calling a restricted target function restrictions when the manager is open when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds via execute",
     "cause": "execution reverted"
   },
   {
@@ -374,19 +292,6 @@
     "cause": "execution reverted"
   },
   {
-    "id": "AccessManager admin operations not subject to a delay #setTargetClosed restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation has expired reverts as AccessManagerExpired",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay #setTargetClosed restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds called directly",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay #setTargetClosed restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds via execute",
-    "cause": "execution reverted"
-  },
-  {
     "id": "AccessManager admin operations not subject to a delay #setTargetFunctionRole restrictions when the call comes from the manager (msg.sender == manager) \"before each\" hook: define caller as manager for \"succeeds\"",
     "cause": "hardhat_setBalance"
   },
@@ -417,19 +322,6 @@
   },
   {
     "id": "AccessManager admin operations not subject to a delay #setTargetFunctionRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is delayed when caller has no execution delay when grant delay has taken effect succeeds via execute",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay #setTargetFunctionRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation has expired reverts as AccessManagerExpired",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay #setTargetFunctionRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds called directly",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay #setTargetFunctionRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds via execute",
     "cause": "execution reverted"
   },
   {
@@ -466,19 +358,6 @@
     "cause": "execution reverted"
   },
   {
-    "id": "AccessManager admin operations not subject to a delay #updateAuthority restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation has expired reverts as AccessManagerExpired",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay #updateAuthority restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds called directly",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay #updateAuthority restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds via execute",
-    "cause": "execution reverted"
-  },
-  {
     "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole restrictions when the call comes from the manager (msg.sender == manager) \"before each\" hook: define caller as manager for \"succeeds\"",
     "cause": "hardhat_setBalance"
   },
@@ -496,49 +375,6 @@
   {
     "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is delayed when caller has no execution delay when grant delay has taken effect succeeds via execute",
     "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation has expired reverts as AccessManagerExpired",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds called directly",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds via execute",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole when the user is already a role member with grant delay when decreasing the execution delay emits event"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole when the user is already a role member with grant delay when decreasing the execution delay when execution delay effect delay has not taken effect yet does not change the execution delay yet"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole when the user is already a role member with grant delay when decreasing the execution delay when execution delay effect delay has taken effect changes the execution delay"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole when the user is already a role member with grant delay when increasing the execution delay emits event and immediately changes the execution delay"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole when the user is already a role member without grant delay when decreasing the execution delay emits event"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole when the user is already a role member without grant delay when decreasing the execution delay when execution delay effect delay has not taken effect yet does not change the execution delay yet"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole when the user is already a role member without grant delay when decreasing the execution delay when execution delay effect delay has taken effect changes the execution delay"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole when the user is already a role member without grant delay when increasing the execution delay emits event and immediately changes the execution delay"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole when the user is not a role member with grant delay when grant delay has not taken effect yet does not grant role to the user yet"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole when the user is not a role member with grant delay when grant delay has taken effect grants role to the user"
   },
   {
     "id": "AccessManager admin operations not subject to a delay role admin operations #grantRole when the user is not a role member without grant delay immediately grants the role to the user"
@@ -560,19 +396,6 @@
   },
   {
     "id": "AccessManager admin operations not subject to a delay role admin operations #revokeRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is delayed when caller has no execution delay when grant delay has taken effect succeeds via execute",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #revokeRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation has expired reverts as AccessManagerExpired",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #revokeRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds called directly",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations not subject to a delay role admin operations #revokeRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds via execute",
     "cause": "execution reverted"
   },
   {
@@ -612,19 +435,6 @@
     "cause": "execution reverted"
   },
   {
-    "id": "AccessManager admin operations subject to a delay #labelRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation has expired reverts as AccessManagerExpired",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessManager admin operations subject to a delay #labelRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds called directly",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations subject to a delay #labelRole restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds via execute",
-    "cause": "execution reverted"
-  },
-  {
     "id": "AccessManager admin operations subject to a delay #setGrantDelay restrictions when the call comes from the manager (msg.sender == manager) \"before each\" hook: define caller as manager for \"succeeds\"",
     "cause": "hardhat_setBalance"
   },
@@ -655,19 +465,6 @@
   },
   {
     "id": "AccessManager admin operations subject to a delay #setGrantDelay restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is delayed when caller has no execution delay when grant delay has taken effect succeeds via execute",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations subject to a delay #setGrantDelay restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation has expired reverts as AccessManagerExpired",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessManager admin operations subject to a delay #setGrantDelay restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds called directly",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations subject to a delay #setGrantDelay restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds via execute",
     "cause": "execution reverted"
   },
   {
@@ -710,19 +507,6 @@
     "cause": "execution reverted"
   },
   {
-    "id": "AccessManager admin operations subject to a delay #setRoleAdmin restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation has expired reverts as AccessManagerExpired",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessManager admin operations subject to a delay #setRoleAdmin restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds called directly",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations subject to a delay #setRoleAdmin restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds via execute",
-    "cause": "execution reverted"
-  },
-  {
     "id": "AccessManager admin operations subject to a delay #setRoleGuardian restrictions when the call comes from the manager (msg.sender == manager) \"before each\" hook: define caller as manager for \"succeeds\"",
     "cause": "hardhat_setBalance"
   },
@@ -753,19 +537,6 @@
   },
   {
     "id": "AccessManager admin operations subject to a delay #setRoleGuardian restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is delayed when caller has no execution delay when grant delay has taken effect succeeds via execute",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations subject to a delay #setRoleGuardian restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation has expired reverts as AccessManagerExpired",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessManager admin operations subject to a delay #setRoleGuardian restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds called directly",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations subject to a delay #setRoleGuardian restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds via execute",
     "cause": "execution reverted"
   },
   {
@@ -802,19 +573,6 @@
     "cause": "execution reverted"
   },
   {
-    "id": "AccessManager admin operations subject to a delay #setTargetAdminDelay restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation has expired reverts as AccessManagerExpired",
-    "cause": "fixed-timestamp",
-    "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
-  },
-  {
-    "id": "AccessManager admin operations subject to a delay #setTargetAdminDelay restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds called directly",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "AccessManager admin operations subject to a delay #setTargetAdminDelay restrictions when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is not delayed when caller has an execution delay when operation is scheduled when operation is ready for execution succeeds via execute",
-    "cause": "execution reverted"
-  },
-  {
     "id": "AccessManager admin operations subject to a delay #setTargetAdminDelay when increasing the delay \"before each\" hook: sets old delay for \"increases the delay after minsetback\""
   },
   {
@@ -835,34 +593,13 @@
     "id": "AccessManager getters #canCall when the manager is open when the call does not come from the manager (msg.sender != manager) when the function requires the caller to be granted with a role other than PUBLIC_ROLE when the required role is granted to the caller when role granting is delayed when caller has no execution delay when grant delay has taken effect should return true and no execution delay"
   },
   {
-    "id": "AccessManager getters #getAccess when the required role is granted to the caller when role granting is delayed when caller has an execution delay when grant delay has not taken effect yet role is not in effect and execution delay is set"
-  },
-  {
     "id": "AccessManager getters #getAccess when the required role is granted to the caller when role granting is delayed when caller has an execution delay when grant delay has taken effect access has role in effect and execution delay is set"
-  },
-  {
-    "id": "AccessManager getters #getAccess when the required role is granted to the caller when role granting is delayed when caller has no execution delay when grant delay has not taken effect yet access has role not in effect without execution delay"
   },
   {
     "id": "AccessManager getters #getAccess when the required role is granted to the caller when role granting is delayed when caller has no execution delay when grant delay has taken effect role is in effect without execution delay"
   },
   {
-    "id": "AccessManager getters #getAccess when the required role is granted to the caller when role granting is not delayed when caller has an execution delay access has role in effect and execution delay is set"
-  },
-  {
-    "id": "AccessManager getters #getAccess when the required role is granted to the caller when role granting is not delayed when caller has no execution delay access has role in effect without execution delay"
-  },
-  {
     "id": "AccessManager getters #getRoleGrantDelay when the grant admin delay is setup when grant delay has taken effect returns the new role grant delay"
-  },
-  {
-    "id": "AccessManager getters #getSchedule when operation is scheduled when operation has expired returns 0"
-  },
-  {
-    "id": "AccessManager getters #getSchedule when operation is scheduled when operation is not ready for execution returns schedule in the future"
-  },
-  {
-    "id": "AccessManager getters #getSchedule when operation is scheduled when operation is ready for execution returns schedule"
   },
   {
     "id": "AccessManager getters #getTargetAdminDelay when the target admin delay is setup when effect delay has taken effect returns the new target admin delay"
@@ -1248,12 +985,8 @@
     "note": "block.timestamp is hardcoded (see COMPATIBILITY.md); manifests as timestamp diffs, delay/schedule assertions, or (for ERC20Votes-style checkpoints) an undercount since votes never actually advance in time"
   },
   {
-    "id": "ERC20Votes vote with timestamp run votes workflow Compound test suite getPastVotes returns the latest block if >= last checkpoint block",
-    "cause": "execution reverted"
-  },
-  {
-    "id": "ERC20Votes vote with timestamp run votes workflow Compound test suite getPastVotes returns zero if < first checkpoint block",
-    "cause": "execution reverted"
+    "id": "ERC20Votes vote with timestamp run votes workflow Compound test suite \"before each\" hook for \"reverts if block number >= current block\"",
+    "cause": "wall-clock-timestamp"
   },
   {
     "id": "ERC20Votes vote with timestamp run votes workflow delegation with signature delegation update",
@@ -1316,12 +1049,6 @@
   {
     "id": "ERC2771Forwarder executeBatch with tampered requests bubbles out of gas forced by the relayer",
     "cause": "insufficient-funds"
-  },
-  {
-    "id": "ERC2771Forwarder executeBatch with tampered requests when the refund receiver is a known address \"after each\" hook for \"ignores a request with a valid signature for expired deadline\""
-  },
-  {
-    "id": "ERC2771Forwarder executeBatch with tampered requests when the refund receiver is a known address ignores a request with a valid signature for expired deadline"
   },
   {
     "id": "ERC2771Forwarder executeBatch with tampered requests when the refund receiver is the zero address reverts with at least one valid signature for expired deadline"
@@ -1792,30 +1519,6 @@
     "id": "Governor using $ERC20VotesTimestampMock cancel public after vote started"
   },
   {
-    "id": "Governor using $ERC20VotesTimestampMock frontrun protection using description suffix with protection via proposer suffix proposer can propose"
-  },
-  {
-    "id": "Governor using $ERC20VotesTimestampMock frontrun protection using description suffix with protection via proposer suffix someone else can propose"
-  },
-  {
-    "id": "Governor using $ERC20VotesTimestampMock frontrun protection using description suffix without protection with different suffix proposer can propose"
-  },
-  {
-    "id": "Governor using $ERC20VotesTimestampMock frontrun protection using description suffix without protection with different suffix someone else can propose"
-  },
-  {
-    "id": "Governor using $ERC20VotesTimestampMock frontrun protection using description suffix without protection with proposer suffix but bad address part proposer can propose"
-  },
-  {
-    "id": "Governor using $ERC20VotesTimestampMock frontrun protection using description suffix without protection with proposer suffix but bad address part someone else can propose"
-  },
-  {
-    "id": "Governor using $ERC20VotesTimestampMock frontrun protection using description suffix without protection without suffix proposer can propose"
-  },
-  {
-    "id": "Governor using $ERC20VotesTimestampMock frontrun protection using description suffix without protection without suffix someone else can propose"
-  },
-  {
     "id": "Governor using $ERC20VotesTimestampMock nominal workflow"
   },
   {
@@ -1895,7 +1598,7 @@
   },
   {
     "id": "GovernorCountingFractional using $ERC20Votes \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -1924,7 +1627,7 @@
   },
   {
     "id": "GovernorCountingFractional using $ERC20VotesTimestampMock \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -1953,7 +1656,7 @@
   },
   {
     "id": "GovernorCountingOverridable using $ERC20VotesExtendedMock \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -1964,18 +1667,12 @@
   },
   {
     "id": "GovernorCountingOverridable using $ERC20VotesExtendedTimestampMock \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
-    "id": "GovernorCountingOverridable using $ERC20VotesExtendedTimestampMock cast override vote \"before each\" hook for \"override after delegate vote\""
-  },
-  {
-    "id": "GovernorCountingOverridable using $ERC20VotesExtendedTimestampMock nominal is unaffected"
-  },
-  {
     "id": "GovernorCrosschain \"before each\" hook for \"execute with executor\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -1987,31 +1684,31 @@
   {
     "id": "GovernorERC721 using $ERC721Votes \"before each\" hook for \"deployment check\"",
     "cause": "concurrent-tx-race",
-    "note": "Races: the fixture mints 5 NFTs concurrently (Promise.all, no confirmation wait), then GovernorHelper.delegate() looks up ownerOf(tokenId) for each — if a mint hasn't committed yet, the read is stale. Same root cause as the ERC20 Governor delegate/transfer race. Fabric-x-sdk MVCC fix makes a detected conflict fail cleanly, but does not eliminate the race. Un-flag once dependency-aware tx scheduling lands and this is confirmed to pass consistently.",
+    "note": "Races: the fixture mints 5 NFTs concurrently (Promise.all, no confirmation wait), then GovernorHelper.delegate() looks up ownerOf(tokenId) for each \u2014 if a mint hasn't committed yet, the read is stale. Same root cause as the ERC20 Governor delegate/transfer race. Fabric-x-sdk MVCC fix makes a detected conflict fail cleanly, but does not eliminate the race. Un-flag once dependency-aware tx scheduling lands and this is confirmed to pass consistently.",
     "flaky": true
   },
   {
     "id": "GovernorERC721 using $ERC721Votes deployment check",
     "cause": "concurrent-tx-race",
-    "note": "Races: the fixture mints 5 NFTs concurrently (Promise.all, no confirmation wait), then GovernorHelper.delegate() looks up ownerOf(tokenId) for each — if a mint hasn't committed yet, the read is stale. Same root cause as the ERC20 Governor delegate/transfer race. Fabric-x-sdk MVCC fix makes a detected conflict fail cleanly, but does not eliminate the race. Un-flag once dependency-aware tx scheduling lands and this is confirmed to pass consistently.",
+    "note": "Races: the fixture mints 5 NFTs concurrently (Promise.all, no confirmation wait), then GovernorHelper.delegate() looks up ownerOf(tokenId) for each \u2014 if a mint hasn't committed yet, the read is stale. Same root cause as the ERC20 Governor delegate/transfer race. Fabric-x-sdk MVCC fix makes a detected conflict fail cleanly, but does not eliminate the race. Un-flag once dependency-aware tx scheduling lands and this is confirmed to pass consistently.",
     "flaky": true
   },
   {
     "id": "GovernorERC721 using $ERC721Votes voting with ERC721 token",
     "cause": "fixed-block-number",
-    "note": "Races: the fixture mints 5 NFTs concurrently (Promise.all, no confirmation wait); when the mint race corrupts state this also surfaces as the already-known fixed-block-number issue (waitForSnapshot's mineUpTo target vs. the real, ever-growing committed height) depending on how many blocks have accumulated suite-wide by the time this test runs. Not purely deterministic either way — un-flag once dependency-aware tx scheduling lands and this is confirmed to pass consistently.",
+    "note": "Races: the fixture mints 5 NFTs concurrently (Promise.all, no confirmation wait); when the mint race corrupts state this also surfaces as the already-known fixed-block-number issue (waitForSnapshot's mineUpTo target vs. the real, ever-growing committed height) depending on how many blocks have accumulated suite-wide by the time this test runs. Not purely deterministic either way \u2014 un-flag once dependency-aware tx scheduling lands and this is confirmed to pass consistently.",
     "flaky": true
   },
   {
     "id": "GovernorERC721 using $ERC721VotesTimestampMock \"before each\" hook for \"deployment check\"",
     "cause": "concurrent-tx-race",
-    "note": "Races: the fixture mints 5 NFTs concurrently (Promise.all, no confirmation wait), then GovernorHelper.delegate() looks up ownerOf(tokenId) for each — if a mint hasn't committed yet, the read is stale. Same root cause as the ERC20 Governor delegate/transfer race. Fabric-x-sdk MVCC fix makes a detected conflict fail cleanly, but does not eliminate the race. Un-flag once dependency-aware tx scheduling lands and this is confirmed to pass consistently.",
+    "note": "Races: the fixture mints 5 NFTs concurrently (Promise.all, no confirmation wait), then GovernorHelper.delegate() looks up ownerOf(tokenId) for each \u2014 if a mint hasn't committed yet, the read is stale. Same root cause as the ERC20 Governor delegate/transfer race. Fabric-x-sdk MVCC fix makes a detected conflict fail cleanly, but does not eliminate the race. Un-flag once dependency-aware tx scheduling lands and this is confirmed to pass consistently.",
     "flaky": true
   },
   {
     "id": "GovernorERC721 using $ERC721VotesTimestampMock voting with ERC721 token",
     "cause": "concurrent-tx-race",
-    "note": "Races: the fixture mints 5 NFTs concurrently (Promise.all, no confirmation wait), then GovernorHelper.delegate() looks up ownerOf(tokenId) for each — if a mint hasn't committed yet, the read is stale. Same root cause as the ERC20 Governor delegate/transfer race. Fabric-x-sdk MVCC fix makes a detected conflict fail cleanly, but does not eliminate the race. Un-flag once dependency-aware tx scheduling lands and this is confirmed to pass consistently.",
+    "note": "Races: the fixture mints 5 NFTs concurrently (Promise.all, no confirmation wait), then GovernorHelper.delegate() looks up ownerOf(tokenId) for each \u2014 if a mint hasn't committed yet, the read is stale. Same root cause as the ERC20 Governor delegate/transfer race. Fabric-x-sdk MVCC fix makes a detected conflict fail cleanly, but does not eliminate the race. Un-flag once dependency-aware tx scheduling lands and this is confirmed to pass consistently.",
     "flaky": true
   },
   {
@@ -2040,7 +1737,7 @@
   },
   {
     "id": "GovernorPreventLateQuorum using $ERC20Votes \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2054,7 +1751,7 @@
   },
   {
     "id": "GovernorPreventLateQuorum using $ERC20VotesTimestampMock \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2076,7 +1773,7 @@
   },
   {
     "id": "GovernorSequentialProposalId using $ERC20Votes \"before each\" hook for \"sequential proposal ids\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2084,7 +1781,7 @@
   },
   {
     "id": "GovernorSequentialProposalId using $ERC20VotesTimestampMock \"before each\" hook for \"sequential proposal ids\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2097,7 +1794,7 @@
   },
   {
     "id": "GovernorStorage using $ERC20Votes proposal indexing \"before each\" hook for \"before propose\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2107,12 +1804,12 @@
   },
   {
     "id": "GovernorStorage using $ERC20VotesTimestampMock proposal indexing \"before each\" hook for \"before propose\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
     "id": "GovernorSuperQuorum using $ERC20Votes \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2129,7 +1826,7 @@
   },
   {
     "id": "GovernorSuperQuorum using $ERC20VotesTimestampMock \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2166,7 +1863,7 @@
   },
   {
     "id": "GovernorTimelockControl using $ERC20Votes \"before each\" hook for \"doesn't accept ether transfers\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2216,7 +1913,7 @@
   },
   {
     "id": "GovernorTimelockControl using $ERC20VotesTimestampMock \"before each\" hook for \"doesn't accept ether transfers\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2235,13 +1932,8 @@
     "id": "GovernorTimelockControl using $ERC20VotesTimestampMock nominal"
   },
   {
-    "id": "GovernorTimelockControl using $ERC20VotesTimestampMock onlyGovernance relay can be executed through governance"
-  },
-  {
-    "id": "GovernorTimelockControl using $ERC20VotesTimestampMock onlyGovernance relay is payable and can transfer eth to EOA"
-  },
-  {
-    "id": "GovernorTimelockControl using $ERC20VotesTimestampMock onlyGovernance relay protected against other proposers"
+    "id": "GovernorTimelockControl using $ERC20VotesTimestampMock onlyGovernance relay \"before each\" hook for \"is protected\"",
+    "cause": "wall-clock-timestamp"
   },
   {
     "id": "GovernorTimelockControl using $ERC20VotesTimestampMock onlyGovernance updateTimelock can be executed through governance to"
@@ -2263,7 +1955,7 @@
   },
   {
     "id": "GovernorVotesQuorumFraction using $ERC20Votes \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2283,7 +1975,7 @@
   },
   {
     "id": "GovernorVotesQuorumFraction using $ERC20VotesTimestampMock \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2303,7 +1995,7 @@
   },
   {
     "id": "GovernorVotesSuperQuorumFraction using $ERC20Votes \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2317,7 +2009,7 @@
   },
   {
     "id": "GovernorVotesSuperQuorumFraction using $ERC20VotesTimestampMock \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2331,7 +2023,7 @@
   },
   {
     "id": "GovernorWithParams using $ERC20Votes \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2354,7 +2046,7 @@
   },
   {
     "id": "GovernorWithParams using $ERC20VotesTimestampMock \"before each\" hook for \"deployment check\"",
-    "note": "Predicted, not yet directly observed failing — this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
+    "note": "Predicted, not yet directly observed failing \u2014 this file's fixture uses the identical vulnerable pattern already confirmed racy in 8 other Governor-family entries (GovernorHelper.delegate()'s Promise.all of dependent writes, no confirmation wait, endorsement-time read snapshot goes stale before commit).",
     "flaky": true
   },
   {
@@ -2381,1065 +2073,1073 @@
   {
     "id": "Packing extract / replace extract bytes1 from bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes1 from bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes1 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes1 from bytes2",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes1 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes1 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes1 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes1 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes1 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes1 from bytes4",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes1 from bytes6",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes1 from bytes8",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes10 from bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes10 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes10 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes10 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes10 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes10 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes10 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes12 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes12 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes12 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes12 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes12 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes12 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes16 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes16 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes16 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes16 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes16 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes2 from bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes2 from bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes2 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes2 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes2 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes2 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes2 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes2 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes2 from bytes4",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes2 from bytes6",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes2 from bytes8",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes20 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes20 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes20 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes20 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes22 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes22 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes22 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes24 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes24 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes28 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes4 from bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes4 from bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes4 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes4 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes4 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes4 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes4 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes4 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes4 from bytes6",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes4 from bytes8",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes6 from bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes6 from bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes6 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes6 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes6 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes6 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes6 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes6 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes6 from bytes8",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes8 from bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes8 from bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes8 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes8 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes8 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes8 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes8 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace extract bytes8 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes1 from bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes1 from bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes1 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes1 from bytes2",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes1 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes1 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes1 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes1 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes1 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes1 from bytes4",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes1 from bytes6",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes1 from bytes8",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes10 from bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes10 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes10 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes10 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes10 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes10 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes10 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes12 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes12 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes12 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes12 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes12 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes12 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes16 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes16 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes16 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes16 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes16 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes2 from bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes2 from bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes2 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes2 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes2 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes2 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes2 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes2 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes2 from bytes4",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes2 from bytes6",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes2 from bytes8",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes20 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes20 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes20 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes20 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes22 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes22 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes22 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes24 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes24 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes28 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes4 from bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes4 from bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes4 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes4 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes4 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes4 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes4 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes4 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes4 from bytes6",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes4 from bytes8",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes6 from bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes6 from bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes6 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes6 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes6 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes6 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes6 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes6 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes6 from bytes8",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes8 from bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes8 from bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes8 from bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes8 from bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes8 from bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes8 from bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes8 from bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing extract / replace replace bytes8 from bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes1 + bytes1 => bytes2",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes10 + bytes10 => bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes10 + bytes12 => bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes10 + bytes2 => bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes10 + bytes22 => bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes10 + bytes6 => bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes12 + bytes10 => bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes12 + bytes12 => bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes12 + bytes16 => bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes12 + bytes20 => bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes12 + bytes4 => bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes12 + bytes8 => bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes16 + bytes12 => bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes16 + bytes16 => bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes16 + bytes4 => bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes16 + bytes6 => bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes16 + bytes8 => bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes2 + bytes10 => bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes2 + bytes2 => bytes4",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes2 + bytes20 => bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes2 + bytes22 => bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes2 + bytes4 => bytes6",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes2 + bytes6 => bytes8",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes2 + bytes8 => bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes20 + bytes12 => bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes20 + bytes2 => bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes20 + bytes4 => bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes20 + bytes8 => bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes22 + bytes10 => bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes22 + bytes2 => bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes22 + bytes6 => bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes24 + bytes4 => bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes24 + bytes8 => bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes28 + bytes4 => bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes4 + bytes12 => bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes4 + bytes16 => bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes4 + bytes2 => bytes6",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes4 + bytes20 => bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes4 + bytes24 => bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes4 + bytes28 => bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes4 + bytes4 => bytes8",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes4 + bytes6 => bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes4 + bytes8 => bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes6 + bytes10 => bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes6 + bytes16 => bytes22",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes6 + bytes2 => bytes8",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes6 + bytes22 => bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes6 + bytes4 => bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes6 + bytes6 => bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes8 + bytes12 => bytes20",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes8 + bytes16 => bytes24",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes8 + bytes2 => bytes10",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes8 + bytes20 => bytes28",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes8 + bytes24 => bytes32",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes8 + bytes4 => bytes12",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
   },
   {
     "id": "Packing pack pack bytes8 + bytes8 => bytes16",
     "cause": "max-code-size",
-    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) — not directly confirmed via a deploy-time error"
+    "note": "symptom is 'could not decode result data' (empty call return); consistent with the $Packing mock never deploying because it's oversized (EIP-170) \u2014 not directly confirmed via a deploy-time error"
+  },
+  {
+    "id": "RateLimiter RefillingBucket with some capacity consume consume all capacity at once",
+    "cause": "wall-clock-timestamp"
   },
   {
     "id": "RateLimiter RefillingBucket with some capacity consume consume one key does not affect another key"
+  },
+  {
+    "id": "RateLimiter RefillingBucket with some capacity consume consume reduces available and increases used",
+    "cause": "wall-clock-timestamp"
   },
   {
     "id": "RateLimiter RefillingBucket with some capacity consume consume(0) is a no-op that returns true"
@@ -3454,7 +3154,15 @@
     "id": "RateLimiter RefillingBucket with some capacity refills linearly over time"
   },
   {
+    "id": "RateLimiter RefillingBucket with some capacity tryConsume tryConsume all capacity at once",
+    "cause": "wall-clock-timestamp"
+  },
+  {
     "id": "RateLimiter RefillingBucket with some capacity tryConsume tryConsume one key does not affect another key"
+  },
+  {
+    "id": "RateLimiter RefillingBucket with some capacity tryConsume tryConsume reduces available and increases used",
+    "cause": "wall-clock-timestamp"
   },
   {
     "id": "RateLimiter RefillingBucket with some capacity tryConsume tryConsume(0) is a no-op that returns true"
@@ -3478,6 +3186,10 @@
     "id": "RateLimiter SlidingWindow with some capacity consume after a full-window idle truncates cumulative history"
   },
   {
+    "id": "RateLimiter SlidingWindow with some capacity consume multiple consume accumulate within the window",
+    "cause": "wall-clock-timestamp"
+  },
+  {
     "id": "RateLimiter SlidingWindow with some capacity multiple consumes in the same block overwrite the checkpoint in place"
   },
   {
@@ -3485,6 +3197,10 @@
   },
   {
     "id": "RateLimiter SlidingWindow with some capacity past consumptions drop out after the window elapses"
+  },
+  {
+    "id": "RateLimiter SlidingWindow with some capacity tryConsume multiple tryConsume accumulate within the window",
+    "cause": "wall-clock-timestamp"
   },
   {
     "id": "RateLimiter SlidingWindow with some capacity updateSettings with window=0 collapses window to a single second"
@@ -3569,18 +3285,12 @@
     "cause": "execution reverted"
   },
   {
-    "id": "TimelockController methods batch schedule proposer can schedule"
-  },
-  {
     "id": "TimelockController methods simple execute with scheduled operation on time executor can reveal",
     "cause": "execution reverted"
   },
   {
     "id": "TimelockController methods simple execute with scheduled operation on time prevents reentrancy execution",
     "cause": "execution reverted"
-  },
-  {
-    "id": "TimelockController methods simple schedule proposer can schedule"
   },
   {
     "id": "TimelockController usage scenario call",
@@ -3705,12 +3415,12 @@
     "cause": "fixed-timestamp"
   },
   {
-    "id": "Votes vote with timestamp run votes workflow Compound test suite getPastVotes returns the latest block if >= last checkpoint block",
-    "cause": "execution reverted"
+    "id": "Votes vote with timestamp performs voting operations \"before each\" hook for \"reverts if block number >= current block\"",
+    "cause": "wall-clock-timestamp"
   },
   {
-    "id": "Votes vote with timestamp run votes workflow Compound test suite getPastVotes returns zero if < first checkpoint block",
-    "cause": "execution reverted"
+    "id": "Votes vote with timestamp run votes workflow Compound test suite \"before each\" hook for \"reverts if block number >= current block\"",
+    "cause": "wall-clock-timestamp"
   },
   {
     "id": "Votes vote with timestamp run votes workflow delegation with signature delegation update",
@@ -3809,12 +3519,12 @@
     "cause": "fixed-timestamp"
   },
   {
-    "id": "VotesExtended vote with timestamp run votes workflow Compound test suite getPastVotes returns the latest block if >= last checkpoint block",
-    "cause": "execution reverted"
+    "id": "VotesExtended vote with timestamp performs voting operations \"before each\" hook for \"reverts if block number >= current block\"",
+    "cause": "wall-clock-timestamp"
   },
   {
-    "id": "VotesExtended vote with timestamp run votes workflow Compound test suite getPastVotes returns zero if < first checkpoint block",
-    "cause": "execution reverted"
+    "id": "VotesExtended vote with timestamp run votes workflow Compound test suite \"before each\" hook for \"reverts if block number >= current block\"",
+    "cause": "wall-clock-timestamp"
   },
   {
     "id": "VotesExtended vote with timestamp run votes workflow delegation with signature delegation update",
