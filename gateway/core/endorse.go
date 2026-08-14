@@ -62,7 +62,7 @@ func (e EndorsementClient) ExecuteTransaction(ctx context.Context, tx *types.Tra
 		return sdk.Endorsement{}, err
 	}
 
-	// Single timestamp for all endorsers so RWsets match (#277).
+	// Single timestamp for all endorsers so RWsets match.
 	reqTime := time.Now()
 
 	// Derive a cancellable context so goroutines can stop early on error

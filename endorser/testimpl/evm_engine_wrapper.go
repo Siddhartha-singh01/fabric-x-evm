@@ -91,7 +91,7 @@ func (w *EVMEngineWrapper) SetBalancePriming(config *BalancePrimingConfig) {
 
 // Execute runs a state-changing transaction and returns the EVM result.
 // The behavior depends on the configured mode.
-// blockTime is the Unix second for EVM block.timestamp (#277); when the wrapper
+// blockTime is the Unix second for EVM block.timestamp; when the wrapper
 // has an injected BlockContext its Time takes precedence after creation.
 func (w *EVMEngineWrapper) Execute(ctx context.Context, tx *types.Transaction, blockTime uint64) (endorsement.ExecutionResult, error) {
 	// Create the appropriate executor based on mode

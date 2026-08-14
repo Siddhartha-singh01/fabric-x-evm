@@ -14,7 +14,7 @@ import (
 	"github.com/hyperledger/fabric-x-evm/common"
 )
 
-// Defaults for gateway-supplied EVM block.timestamp validation (#277).
+// Defaults for gateway-supplied EVM block.timestamp validation.
 const (
 	// DefaultTimestampFutureSkew is the max allowed request time ahead of the
 	// endorser's clock (tight: limits early unlock / SWC-116 exposure).

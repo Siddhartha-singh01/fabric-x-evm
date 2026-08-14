@@ -29,7 +29,8 @@ type Endorser struct {
 	Engine  EVMEngineInterface // Exported to allow injection of wrappers
 	builder endorsement.Builder
 
-	// Clock skew bounds for gateway-supplied request timestamps (#277).
+	// Clock skew bounds for gateway-supplied request timestamps.
+	// Set only at construction via New; there is no setter.
 	maxFuture time.Duration
 	maxPast   time.Duration
 	// now is time.Now in production; tests inject a fixed clock.
@@ -40,7 +41,7 @@ type Endorser struct {
 // This allows both *EVMEngine and *testimpl.EVMEngineWrapper to be used.
 type EVMEngineInterface interface {
 	// Execute runs a state-changing tx. blockTime is the Unix second used as
-	// EVM block.timestamp (issue #277); 0 falls back to DefaultBlockTime.
+	// EVM block.timestamp and must be non-zero (gateway always supplies it).
 	Execute(ctx context.Context, tx *types.Transaction, blockTime uint64) (endorsement.ExecutionResult, error)
 	Call(msg ethereum.CallMsg, blockNumber *big.Int) ([]byte, error)
 	BalanceAt(ctx context.Context, account ethcommon.Address, blockNumber *big.Int) (*big.Int, error)
@@ -49,44 +50,33 @@ type EVMEngineInterface interface {
 	NonceAt(ctx context.Context, account ethcommon.Address, blockNumber *big.Int) (uint64, error)
 }
 
-// New returns a new Endorser with default timestamp skew bounds (#277).
+// New returns a new Endorser. Timestamp skew bounds are taken from cfg via the
+// config package helpers (single source of truth) and applied at construction.
+// A zero cfg uses the package defaults.
 //
 // Arguments:
 //   - `engine`:  Manages EVM execution and state reads.
 //   - `builder`: Creates the signed ProposalResponse.
-func New(engine *execution.EVMEngine, builder endorsement.Builder) (*Endorser, error) {
+//   - `cfg`:     Endorser config; only timestamp skew fields are read here.
+func New(engine *execution.EVMEngine, builder endorsement.Builder, cfg config.Endorser) (*Endorser, error) {
 	return &Endorser{
 		Engine:    engine,
 		builder:   builder,
-		maxFuture: config.DefaultTimestampFutureSkew,
-		maxPast:   config.DefaultTimestampPastSkew,
+		maxFuture: cfg.TimestampFutureSkew(),
+		maxPast:   cfg.TimestampPastSkew(),
 		now:       time.Now,
 	}, nil
-}
-
-// SetTimestampBounds configures how far a request timestamp may drift from the
-// endorser's local clock. Zero or negative values fall back to defaults.
-func (f *Endorser) SetTimestampBounds(future, past time.Duration) {
-	if future <= 0 {
-		future = config.DefaultTimestampFutureSkew
-	}
-	if past <= 0 {
-		past = config.DefaultTimestampPastSkew
-	}
-	f.maxFuture = future
-	f.maxPast = past
 }
 
 // Execute endorses an Ethereum transaction and returns a signed proposal response.
 // Reverts are endorsed and submitted (so the receipt records status=0); client-caused failures
 // (invalid tx or failed execution) surface as a non-2xx status that CreateSignedTx won't submit.
 //
-// timestamp is the gateway-supplied wall time used as EVM block.timestamp (#277).
-// It is validated against the endorser's clock skew window and then applied as-is
+// timestamp is the gateway-supplied wall time used as EVM block.timestamp.
+// It is required, validated against the endorser's clock skew window, and applied as-is
 // (no clamping) so all endorsers share the same value.
 func (f *Endorser) Execute(ctx context.Context, inv endorsement.Invocation, ethTx *types.Transaction, timestamp time.Time) (*peer.ProposalResponse, error) {
-	future, past := f.skewBounds()
-	if err := validateRequestTimestamp(timestamp, f.clock(), future, past); err != nil {
+	if err := validateRequestTimestamp(timestamp, f.clock(), f.maxFuture, f.maxPast); err != nil {
 		// Application outcome: invalid request from a misbehaving/skewed gateway.
 		return response(nil, execution.NewTxRejected(err)), nil
 	}
@@ -112,19 +102,6 @@ func (f *Endorser) clock() time.Time {
 		return f.now()
 	}
 	return time.Now()
-}
-
-// skewBounds returns future/past windows, applying the same defaults as
-// SetTimestampBounds when fields are zero (e.g. Endorser literals in tests).
-func (f *Endorser) skewBounds() (future, past time.Duration) {
-	future, past = f.maxFuture, f.maxPast
-	if future <= 0 {
-		future = config.DefaultTimestampFutureSkew
-	}
-	if past <= 0 {
-		past = config.DefaultTimestampPastSkew
-	}
-	return future, past
 }
 
 // validateRequestTimestamp checks that ts is within [now-maxPast, now+maxFuture]

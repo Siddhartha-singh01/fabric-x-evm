@@ -251,7 +251,7 @@ func TestExecute_MapsProposalResponse(t *testing.T) {
 }
 
 // Proto timestamp 0 is "unset" and becomes a zero time.Time; a non-zero Unix
-// second is forwarded to the service (#277).
+// second is forwarded to the service.
 func TestExecute_ForwardsTimestamp(t *testing.T) {
 	svc := &stubService{execResp: &peer.ProposalResponse{Response: &peer.Response{Status: common.StatusOK}}}
 	client := newTestClient(t, svc)

@@ -46,7 +46,7 @@ func TestNewExecutor_UsesProvidedBlockTime(t *testing.T) {
 	}
 }
 
-func TestNewExecutor_ZeroBlockTimeFallsBackToDefault(t *testing.T) {
+func TestNewExecutor_ZeroBlockTimeIsRejected(t *testing.T) {
 	backend, err := state.NewWriteDB(Channel, "file:exec_blocktime0?mode=memory&cache=shared")
 	if err != nil {
 		t.Fatal(err)
@@ -62,16 +62,13 @@ func TestNewExecutor_ZeroBlockTimeFallsBackToDefault(t *testing.T) {
 		t.Fatal(err)
 	}
 	cfg := EVMConfig{ChainConfig: fxcommon.BuildChainConfig(4011)}
-	ex, err := NewExecutor(stateDB, reader, nil, 0, cfg)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if ex.BlockCtx.Time != DefaultBlockTime {
-		t.Fatalf("BlockCtx.Time = %d, want DefaultBlockTime %d", ex.BlockCtx.Time, DefaultBlockTime)
+	_, err = NewExecutor(stateDB, reader, nil, 0, cfg)
+	if err == nil {
+		t.Fatal("expected error for blockTime 0")
 	}
 }
 
-// Call uses wall-clock Unix seconds for TIMESTAMP, not DefaultBlockTime (#277).
+// Call uses wall-clock Unix seconds for TIMESTAMP.
 func TestCall_UsesWallClockBlockTime(t *testing.T) {
 	backend, err := state.NewWriteDB(Channel, "file:exec_call_time?mode=memory&cache=shared")
 	if err != nil {
@@ -81,7 +78,6 @@ func TestCall_UsesWallClockBlockTime(t *testing.T) {
 	cfg := EVMConfig{ChainConfig: fxcommon.BuildChainConfig(4011)}
 	eng := NewEVMEngine(Namespace, kvs, cfg, false)
 
-	// Call to empty account succeeds; newExecutor must receive a current Unix time.
 	to := ethcommon.HexToAddress("0xdead")
 	before := uint64(time.Now().Unix())
 	_, err = eng.Call(ethereum.CallMsg{To: &to}, nil)
@@ -89,11 +85,6 @@ func TestCall_UsesWallClockBlockTime(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Call: %v", err)
 	}
-	// Sanity: DefaultBlockTime is far from wall clock in 2026+.
-	if before < DefaultBlockTime || after < DefaultBlockTime {
-		t.Fatalf("clock anomaly: before=%d after=%d default=%d", before, after, DefaultBlockTime)
-	}
-	// Directly verify newExecutor would accept wall clock (same path Call uses).
 	ex, err := eng.newExecutor(nil, before)
 	if err != nil {
 		t.Fatal(err)
@@ -101,8 +92,5 @@ func TestCall_UsesWallClockBlockTime(t *testing.T) {
 	defer ex.Close()
 	if ex.BlockCtx.Time < before || ex.BlockCtx.Time > after+1 {
 		t.Fatalf("BlockCtx.Time = %d, want in [%d,%d]", ex.BlockCtx.Time, before, after+1)
-	}
-	if ex.BlockCtx.Time == DefaultBlockTime {
-		t.Fatal("Call path must not use DefaultBlockTime")
 	}
 }

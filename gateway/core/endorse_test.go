@@ -34,7 +34,7 @@ type stubEndorser struct {
 	code        []byte
 	execResp    *peer.ProposalResponse
 	execErr     error
-	// lastTS is the timestamp from the most recent Execute call (#277).
+	// lastTS is the timestamp from the most recent Execute call.
 	lastTS time.Time
 }
 
@@ -242,7 +242,7 @@ func TestExecuteTransaction_Success(t *testing.T) {
 	}
 }
 
-// Every endorser must see the same gateway-stamped timestamp (#277).
+// Every endorser must see the same gateway-stamped timestamp.
 func TestExecuteTransaction_SameTimestampForAllEndorsers(t *testing.T) {
 	pResp := &peer.ProposalResponse{Response: &peer.Response{Status: common.StatusOK}}
 	a := &stubEndorser{execResp: pResp}

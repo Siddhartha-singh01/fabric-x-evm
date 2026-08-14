@@ -14,16 +14,21 @@ import (
 	"github.com/hyperledger/fabric-x-evm/endorser/core"
 )
 
-func TestApplyTimestampBounds(t *testing.T) {
-	end, err := core.New(nil, nil)
+func TestNew_InstallsTimestampBoundsFromConfig(t *testing.T) {
+	// Zero tsCfg uses package defaults at construction (no separate setter).
+	end, err := core.New(nil, nil, config.Endorser{})
 	if err != nil {
 		t.Fatal(err)
 	}
-	// Defaults (zero config fields).
-	applyTimestampBounds(end, config.Endorser{})
-	// Explicit overrides.
-	applyTimestampBounds(end, config.Endorser{
+	_ = end
+
+	// Custom bounds flow through New only.
+	end2, err := core.New(nil, nil, config.Endorser{
 		MaxTimestampFuture: 7 * time.Second,
 		MaxTimestampPast:   11 * time.Second,
 	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_ = end2
 }

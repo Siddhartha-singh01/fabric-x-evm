@@ -35,8 +35,8 @@ type Service interface {
 	// Execute endorses an Ethereum transaction. The signed response carries the
 	// outcome in its Status (OK, revert, rejected, exec failure, server error).
 	//
-	// timestamp is the gateway-supplied wall time used as EVM block.timestamp
-	// (issue #277). Every endorser must receive the same value so RWsets match.
+	// timestamp is the gateway-supplied wall time used as EVM block.timestamp.
+	// Every endorser must receive the same value so RWsets match.
 	// The endorser validates it against a configured clock skew window.
 	//
 	// It returns a *peer.ProposalResponse because the gateway packages it into

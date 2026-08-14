@@ -53,7 +53,7 @@ func NewExecutorWrapper(
 	dualStateDB := execution.NewDualStateDB(ethStateDB, stateDB)
 
 	// Create the executor using the public API with the DualStateDB
-	executor, err := execution.NewExecutor(dualStateDB, reader, nil, execution.DefaultBlockTime, evmConfig)
+	executor, err := execution.NewExecutor(dualStateDB, reader, nil, uint64(1_700_000_000), evmConfig)
 	if err != nil {
 		reader.Close()
 		return nil, err

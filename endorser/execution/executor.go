@@ -68,19 +68,14 @@ func NewEVMEngine(namespace string, kvs KVSSnapshotter, evmConfig EVMConfig, mon
 	}
 }
 
-// DefaultBlockTime is used only when Execute receives blockTime 0 (no gateway
-// value). eth_call uses wall-clock Unix seconds so TIMESTAMP matches recent
-// Execute results (issue #277).
-const DefaultBlockTime = uint64(1_000_000)
-
 // Execute runs a state-changing transaction and returns the EVM result,
 // the Fabric read-write set, and any EVM logs emitted.
 // State is always read from the latest block: endorsement must simulate against current state
 // so that the resulting read-write set passes MVCC validation at commit time.
 // Reverts produce a valid endorsement (Status 201 + revert event) instead of an error.
 //
-// blockTime is the gateway-supplied Unix timestamp used as EVM block.timestamp
-// (issue #277). Pass 0 only when a caller has no value; then DefaultBlockTime is used.
+// blockTime is the gateway-supplied Unix second for EVM block.timestamp. It is required
+// (non-zero); the gateway always stamps one value per ExecuteTransaction.
 func (e *EVMEngine) Execute(ctx context.Context, tx *types.Transaction, blockTime uint64) (endorsement.ExecutionResult, error) {
 	ex, err := e.newExecutor(nil, blockTime)
 	if err != nil {
@@ -123,8 +118,8 @@ func (e *EVMEngine) Execute(ctx context.Context, tx *types.Transaction, blockTim
 // with all forks enabled from block 0 this is harmless.
 //
 // TIMESTAMP uses the endorser's wall clock (Unix seconds) so view functions see a time
-// consistent with gateway-stamped Execute (issue #277). Historical block times are not
-// reconstructed; every call gets "now".
+// consistent with gateway-stamped Execute. Historical block times are not reconstructed;
+// every call gets "now".
 func (e *EVMEngine) Call(msg ethereum.CallMsg, blockNumber *big.Int) ([]byte, error) {
 	blockTime := uint64(time.Now().Unix())
 	ex, err := e.newExecutor(blockNumber, blockTime)
@@ -196,7 +191,7 @@ func stateDBBlockNum(ref *uint64) uint64 {
 
 // newExecutor creates a fresh executor with an isolated StateDB.
 // blockNumber selects the Fabric block height for the state snapshot (nil = latest).
-// blockTime is the Unix second used for EVM block.timestamp (0 → DefaultBlockTime).
+// blockTime is the Unix second used for EVM block.timestamp (required, non-zero).
 func (e *EVMEngine) newExecutor(blockNumber *big.Int, blockTime uint64) (*Executor, error) {
 	ref := resolveStateBlockRef(blockNumber)
 
@@ -257,7 +252,7 @@ type Executor struct {
 
 // NewExecutor creates an Executor with the provided StateDB and reader.
 // blockNumber sets the EVM block number context (nil = 0).
-// blockTime is the Unix second for block.timestamp (0 → DefaultBlockTime).
+// blockTime is the Unix second for block.timestamp and must be non-zero.
 // evmConfig.ChainConfig must be set.
 // The caller is responsible for closing the reader when done with the Executor.
 // The stateDB parameter accepts ExtendedStateDB interface to allow DualStateDB for testing.
@@ -265,12 +260,12 @@ func NewExecutor(stateDB ExtendedStateDB, reader ReadStore, blockNumber *big.Int
 	if evmConfig.ChainConfig == nil {
 		return nil, fmt.Errorf("evmConfig.ChainConfig must be set")
 	}
+	if blockTime == 0 {
+		return nil, fmt.Errorf("blockTime is required")
+	}
 
 	if blockNumber == nil {
 		blockNumber = new(big.Int)
-	}
-	if blockTime == 0 {
-		blockTime = DefaultBlockTime
 	}
 	const defaultGasLimit = uint64(300_000_000)
 

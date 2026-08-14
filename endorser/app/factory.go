@@ -36,6 +36,8 @@ func NewEndorserCore(
 	signer sdk.Signer,
 	evmConfig execution.EVMConfig,
 	testImpl bool,
+	// tsCfg supplies timestamp skew bounds (zero value uses package defaults).
+	tsCfg config.Endorser,
 ) (*core.Endorser, storage.KVS, endorsement.Builder, error) {
 	// Reject backend/protocol combinations that cannot work before opening any
 	// files. gateway config validation catches this earlier for a real
@@ -92,17 +94,13 @@ func NewEndorserCore(
 	end, err := core.New(
 		execution.NewEVMEngine(namespace, kvs, evmConfig, monotonicVersions),
 		builder,
+		tsCfg,
 	)
 	if err != nil {
 		return nil, nil, nil, fmt.Errorf("failed to create endorser: %w", err)
 	}
 
 	return end, kvs, builder, nil
-}
-
-// applyTimestampBounds sets #277 clock skew limits on a newly built endorser.
-func applyTimestampBounds(end *core.Endorser, cfg config.Endorser) {
-	end.SetTimestampBounds(cfg.TimestampFutureSkew(), cfg.TimestampPastSkew())
 }
 
 // NewEndorser creates a single embedded, self-syncing endorser instance: it resolves an
@@ -122,11 +120,10 @@ func NewEndorser(
 		DebugLogs:   cfg.DebugLogs,
 	}
 
-	end, kvs, _, err := NewEndorserCore(cfg.Database, network.Channel, network.Namespace, network.Protocol, signer, evmConfig, testImpl)
+	end, kvs, _, err := NewEndorserCore(cfg.Database, network.Channel, network.Namespace, network.Protocol, signer, evmConfig, testImpl, cfg)
 	if err != nil {
 		return nil, nil, nil, err
 	}
-	applyTimestampBounds(end, cfg)
 
 	var sync *sdknet.Synchronizer
 	switch network.Protocol {

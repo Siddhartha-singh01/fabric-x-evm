@@ -37,7 +37,7 @@ type ExecuteRequest struct {
 	// Invocation built by the sender, which the endorser passes to the builder.
 	Invocation *Invocation `protobuf:"bytes,3,opt,name=invocation,proto3" json:"invocation,omitempty"`
 	// Unix seconds for EVM block.timestamp. Set once by the gateway at request
-	// construction so all endorsers share the same value (issue #277).
+	// construction so all endorsers share the same value.
 	Timestamp     int64 `protobuf:"varint,4,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
