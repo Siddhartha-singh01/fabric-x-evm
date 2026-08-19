@@ -163,8 +163,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-oz-artifacts-
 
-      - name: Hardhat OZ compatibility suite (full)
-        run: make hardhat-tests-full
+      - name: Hardhat OZ compatibility suite
+        run: make hardhat-tests
 
       - name: OZ baseline check (gate)
         run: |
