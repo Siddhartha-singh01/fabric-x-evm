@@ -60,25 +60,6 @@ func waitDelivered(t *testing.T, api *FilterAPI, id rpc.ID, wantHashes int) {
 	t.Fatalf("timed out waiting for %d hashes on filter %s", wantHashes, id)
 }
 
-func waitLogs(t *testing.T, api *FilterAPI, id rpc.ID, want int) {
-	t.Helper()
-	deadline := time.Now().Add(2 * time.Second)
-	for time.Now().Before(deadline) {
-		api.mu.Lock()
-		f := api.filters[id]
-		n := 0
-		if f != nil {
-			n = len(f.logs)
-		}
-		api.mu.Unlock()
-		if n >= want {
-			return
-		}
-		time.Sleep(5 * time.Millisecond)
-	}
-	t.Fatalf("timed out waiting for %d logs on filter %s", want, id)
-}
-
 func TestBlockFilter_GetFilterChangesDrains(t *testing.T) {
 	feed := NewBlockFeed()
 	defer feed.Close()
