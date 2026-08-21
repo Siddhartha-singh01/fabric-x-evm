@@ -22,7 +22,7 @@ import (
 
 func newTestHTTPServer(t *testing.T) string {
 	t.Helper()
-	rpcSrv, err := NewServer(&stubBackend{chainID: big.NewInt(4011)})
+	rpcSrv, err := NewServer(&stubBackend{chainID: big.NewInt(4011)}, nil)
 	if err != nil {
 		t.Fatalf("NewServer: %v", err)
 	}
