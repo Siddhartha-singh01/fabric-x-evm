@@ -217,6 +217,37 @@ func TestGetFilterLogs_Historical(t *testing.T) {
 	}
 }
 
+func TestGetFilterLogs_Errors(t *testing.T) {
+	feed := NewBlockFeed()
+	defer feed.Close()
+	api := NewFilterAPI(feed, &stubLogs{head: 1, err: context.DeadlineExceeded})
+	defer api.Close()
+
+	blockID := api.NewBlockFilter(context.Background())
+	if _, err := api.GetFilterLogs(context.Background(), blockID); err == nil {
+		t.Fatal("block filter should reject GetFilterLogs")
+	}
+	if _, err := api.GetFilterLogs(context.Background(), rpc.NewID()); err == nil {
+		t.Fatal("missing filter should error")
+	}
+
+	id, err := api.NewFilter(context.Background(), gethfilters.FilterCriteria{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := api.GetFilterLogs(context.Background(), id); err == nil {
+		t.Fatal("backend error should surface")
+	}
+
+	apiNil := NewFilterAPI(feed, nil)
+	defer apiNil.Close()
+	id2, _ := apiNil.NewFilter(context.Background(), gethfilters.FilterCriteria{})
+	got, err := apiNil.GetFilterLogs(context.Background(), id2)
+	if err != nil || len(got) != 0 {
+		t.Fatalf("nil backend: got %#v err %v", got, err)
+	}
+}
+
 func TestBackpressure_HandleNeverBlocks(t *testing.T) {
 	feed := NewBlockFeed()
 	defer feed.Close()
