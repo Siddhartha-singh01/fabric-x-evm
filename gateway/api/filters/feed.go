@@ -26,7 +26,8 @@ type blockSink interface {
 
 // BlockFeed implements blocks.BlockHandler. Handle never blocks on slow RPC
 // consumers: it does a non-blocking send into an internal buffer and returns.
-// A dedicated drain goroutine fans blocks out to the registered sink.
+// A dedicated drain goroutine fans blocks out to the registered sink and to
+// any Subscribe callers (newHeads).
 type BlockFeed struct {
 	in   chan blocks.Block
 	quit chan struct{}
@@ -36,6 +37,34 @@ type BlockFeed struct {
 
 	dropMu   sync.Mutex
 	dropping bool
+
+	subMu  sync.Mutex
+	subs   map[uint64]*headSub
+	nextID uint64
+}
+
+type headSub struct {
+	id       uint64
+	ch       chan blocks.Block
+	dropping bool
+}
+
+// Subscription is a live BlockFeed consumer. Call Unsubscribe when done.
+type Subscription struct {
+	feed *BlockFeed
+	id   uint64
+	ch   <-chan blocks.Block
+}
+
+// Chan returns the receive channel for committed blocks.
+func (s *Subscription) Chan() <-chan blocks.Block { return s.ch }
+
+// Unsubscribe removes this subscriber. Safe to call more than once.
+func (s *Subscription) Unsubscribe() {
+	if s == nil || s.feed == nil {
+		return
+	}
+	s.feed.unsubscribe(s.id)
 }
 
 // NewBlockFeed starts the drain goroutine. Call Close on shutdown.
@@ -44,6 +73,7 @@ func NewBlockFeed() *BlockFeed {
 		in:   make(chan blocks.Block, internalBuffer),
 		quit: make(chan struct{}),
 		done: make(chan struct{}),
+		subs: make(map[uint64]*headSub),
 	}
 	go f.drain()
 	return f
@@ -53,6 +83,40 @@ func NewBlockFeed() *BlockFeed {
 // Typically the FilterAPI. Safe to call once during wiring before traffic.
 func (f *BlockFeed) SetSink(s blockSink) {
 	f.sink.Store(s)
+}
+
+// Subscribe registers a buffered consumer. Delivery is non-blocking: if the
+// buffer is full the block is dropped for that subscriber only.
+func (f *BlockFeed) Subscribe(buffer int) *Subscription {
+	if buffer < 1 {
+		buffer = 1
+	}
+	ch := make(chan blocks.Block, buffer)
+	f.subMu.Lock()
+	f.nextID++
+	id := f.nextID
+	f.subs[id] = &headSub{id: id, ch: ch}
+	f.subMu.Unlock()
+	return &Subscription{feed: f, id: id, ch: ch}
+}
+
+// SubscriberCount is the number of active Subscribe callers (for tests).
+func (f *BlockFeed) SubscriberCount() int {
+	f.subMu.Lock()
+	defer f.subMu.Unlock()
+	return len(f.subs)
+}
+
+func (f *BlockFeed) unsubscribe(id uint64) {
+	f.subMu.Lock()
+	sub, ok := f.subs[id]
+	if ok {
+		delete(f.subs, id)
+	}
+	f.subMu.Unlock()
+	if ok {
+		close(sub.ch)
+	}
 }
 
 // Handle enqueues the block without waiting for filter delivery.
@@ -87,12 +151,12 @@ func (f *BlockFeed) drain() {
 	for {
 		select {
 		case <-f.quit:
-			// Drain anything already queued so Close does not race a late Handle.
 			for {
 				select {
 				case b := <-f.in:
 					f.deliver(b)
 				default:
+					f.closeAllSubs()
 					return
 				}
 			}
@@ -102,12 +166,36 @@ func (f *BlockFeed) drain() {
 	}
 }
 
-func (f *BlockFeed) deliver(b blocks.Block) {
-	v := f.sink.Load()
-	if v == nil {
-		return
+func (f *BlockFeed) closeAllSubs() {
+	f.subMu.Lock()
+	defer f.subMu.Unlock()
+	for id, sub := range f.subs {
+		close(sub.ch)
+		delete(f.subs, id)
 	}
-	v.(blockSink).onBlock(b)
+}
+
+func (f *BlockFeed) deliver(b blocks.Block) {
+	if v := f.sink.Load(); v != nil {
+		v.(blockSink).onBlock(b)
+	}
+	f.fanOut(b)
+}
+
+func (f *BlockFeed) fanOut(b blocks.Block) {
+	f.subMu.Lock()
+	defer f.subMu.Unlock()
+	for _, s := range f.subs {
+		select {
+		case s.ch <- b:
+			s.dropping = false
+		default:
+			if !s.dropping {
+				s.dropping = true
+				feedLogger.Warnf("newHeads subscriber %d falling behind; dropping notifications", s.id)
+			}
+		}
+	}
 }
 
 func (f *BlockFeed) noteDrop() {

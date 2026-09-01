@@ -169,6 +169,37 @@ func (api *FilterAPI) deliverOne(id rpc.ID, b blocks.Block, hash common.Hash, bl
 	}
 }
 
+// NewHeads creates a subscription that pushes a header each time a block commits.
+// go-ethereum's rpc.Server reflects this method and exposes eth_subscribe/eth_unsubscribe.
+func (api *FilterAPI) NewHeads(ctx context.Context) (*rpc.Subscription, error) {
+	notifier, supported := rpc.NotifierFromContext(ctx)
+	if !supported {
+		return &rpc.Subscription{}, rpc.ErrNotificationsUnsupported
+	}
+
+	rpcSub := notifier.CreateSubscription()
+	feedSub := api.feed.Subscribe(16)
+
+	go func() {
+		defer feedSub.Unsubscribe()
+		for {
+			select {
+			case b, ok := <-feedSub.Chan():
+				if !ok {
+					return
+				}
+				if err := notifier.Notify(rpcSub.ID, headFromBlock(b)); err != nil {
+					return
+				}
+			case <-rpcSub.Err():
+				return
+			}
+		}
+	}()
+
+	return rpcSub, nil
+}
+
 // NewBlockFilter creates a filter that notifies on new block hashes.
 func (api *FilterAPI) NewBlockFilter(ctx context.Context) rpc.ID {
 	api.mu.Lock()
