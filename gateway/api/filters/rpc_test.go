@@ -9,7 +9,6 @@ package filters_test
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -18,13 +17,11 @@ import (
 )
 
 func TestRPC_NewBlockFilterRoundTrip(t *testing.T) {
-	feed := filters.NewBlockFeed()
-	defer feed.Close()
+	apiInst := filters.NewFilterAPI(nil)
+	feed := filters.NewBlockFeed(apiInst)
+	t.Cleanup(feed.Close)
 
-	// Register FilterAPI the same way NewServer does: merge under "eth".
 	srv := rpc.NewServer()
-	apiInst := filters.NewFilterAPI(feed, nil)
-	defer apiInst.Close()
 	if err := srv.RegisterName("eth", apiInst); err != nil {
 		t.Fatal(err)
 	}
@@ -42,16 +39,9 @@ func TestRPC_NewBlockFilterRoundTrip(t *testing.T) {
 	h[31] = 0xab
 	_ = feed.Handle(context.Background(), blocks.Block{Number: 3, Hash: h})
 
-	deadline := time.Now().Add(2 * time.Second)
 	var changes []common.Hash
-	for time.Now().Before(deadline) {
-		if err := client.Call(&changes, "eth_getFilterChanges", id); err != nil {
-			t.Fatal(err)
-		}
-		if len(changes) > 0 {
-			break
-		}
-		time.Sleep(5 * time.Millisecond)
+	if err := client.Call(&changes, "eth_getFilterChanges", id); err != nil {
+		t.Fatal(err)
 	}
 	if len(changes) != 1 || changes[0][31] != 0xab {
 		t.Fatalf("changes = %#v", changes)

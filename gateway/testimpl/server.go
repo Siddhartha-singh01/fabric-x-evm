@@ -30,7 +30,7 @@ import (
 // SECURITY WARNING: This server performs server-side transaction signing,
 // which is inherently insecure. Use ONLY for development and testing.
 // NEVER use in production environments.
-func NewTestServer(b api.Backend, testAccounts []common.Address, testAccountKeys map[common.Address]*ecdsa.PrivateKey, lightKVS estorage.Revertible, store storage.Revertible, pool TxPool, feed *filters.BlockFeed) (*rpc.Server, error) {
+func NewTestServer(b api.Backend, testAccounts []common.Address, testAccountKeys map[common.Address]*ecdsa.PrivateKey, lightKVS estorage.Revertible, store storage.Revertible, pool TxPool, filterAPI *filters.FilterAPI) (*rpc.Server, error) {
 	srv := rpc.NewServer()
 
 	// Shared by the submit path and the snapshot/revert path; see txFence.
@@ -46,8 +46,8 @@ func NewTestServer(b api.Backend, testAccounts []common.Address, testAccountKeys
 	if err := srv.RegisterName("eth", testAPI); err != nil {
 		return nil, err
 	}
-	if feed != nil {
-		if err := srv.RegisterName("eth", filters.NewFilterAPI(feed, b)); err != nil {
+	if filterAPI != nil {
+		if err := srv.RegisterName("eth", filterAPI); err != nil {
 			return nil, err
 		}
 	}

@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"math/big"
 	"testing"
-	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -190,10 +189,9 @@ func TestMatchLogs_AddressTopicsAndRange(t *testing.T) {
 }
 
 func TestLogFilter_LivePathViaFeed(t *testing.T) {
-	feed := NewBlockFeed()
-	defer feed.Close()
-	api := NewFilterAPI(feed, &stubLogs{head: 1})
-	defer api.Close()
+	api := NewFilterAPI(&stubLogs{head: 1})
+	feed := NewBlockFeed(api)
+	t.Cleanup(feed.Close)
 
 	addr := common.HexToAddress("0x00000000000000000000000000000000000000aa")
 	id, err := api.NewFilter(context.Background(), gethfilters.FilterCriteria{
@@ -222,20 +220,6 @@ func TestLogFilter_LivePathViaFeed(t *testing.T) {
 			{Number: 1, Valid: true, InputArgs: [][]byte{{byte(fc.ProposalTypeEVMTx)}, rawTx}, Events: events},
 		},
 	})
-
-	deadline := time.Now().Add(2 * time.Second)
-	for time.Now().Before(deadline) {
-		api.mu.Lock()
-		n := 0
-		if f := api.filters[id]; f != nil {
-			n = len(f.logs)
-		}
-		api.mu.Unlock()
-		if n >= 1 {
-			break
-		}
-		time.Sleep(5 * time.Millisecond)
-	}
 
 	got, err := api.GetFilterChanges(id)
 	if err != nil {

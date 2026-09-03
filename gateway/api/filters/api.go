@@ -54,7 +54,6 @@ type filter struct {
 
 // FilterAPI exposes the eth_*Filter JSON-RPC methods.
 type FilterAPI struct {
-	feed    *BlockFeed
 	logs    LogQuerier
 	timeout time.Duration
 
@@ -65,31 +64,29 @@ type FilterAPI struct {
 	wg   sync.WaitGroup
 }
 
-// NewFilterAPI wires the feed sink and starts the expiry loop.
-func NewFilterAPI(feed *BlockFeed, logs LogQuerier) *FilterAPI {
-	return newFilterAPI(feed, logs, defaultTimeout)
+// NewFilterAPI starts the expiry loop. Pair with NewBlockFeed(api) for the handler.
+func NewFilterAPI(logs LogQuerier) *FilterAPI {
+	return newFilterAPI(logs, defaultTimeout)
 }
 
 // NewFilterAPIWithTimeout is for tests that need a short expiry.
-func NewFilterAPIWithTimeout(feed *BlockFeed, logs LogQuerier, timeout time.Duration) *FilterAPI {
-	return newFilterAPI(feed, logs, timeout)
+func NewFilterAPIWithTimeout(logs LogQuerier, timeout time.Duration) *FilterAPI {
+	return newFilterAPI(logs, timeout)
 }
 
-func newFilterAPI(feed *BlockFeed, logs LogQuerier, timeout time.Duration) *FilterAPI {
+func newFilterAPI(logs LogQuerier, timeout time.Duration) *FilterAPI {
 	api := &FilterAPI{
-		feed:    feed,
 		logs:    logs,
 		timeout: timeout,
 		filters: make(map[rpc.ID]*filter),
 		quit:    make(chan struct{}),
 	}
-	feed.SetSink(api)
 	api.wg.Add(1)
 	go api.timeoutLoop()
 	return api
 }
 
-// Close stops the expiry loop. BlockFeed.Close is separate (App.Shutdown).
+// Close stops the expiry loop.
 func (api *FilterAPI) Close() {
 	select {
 	case <-api.quit:
@@ -107,8 +104,6 @@ func (api *FilterAPI) timeoutLoop() {
 		select {
 		case <-api.quit:
 			return
-		case <-api.feed.Done():
-			return
 		case <-ticker.C:
 			api.mu.Lock()
 			for id, f := range api.filters {
@@ -124,32 +119,29 @@ func (api *FilterAPI) timeoutLoop() {
 	}
 }
 
-// onBlock is called from BlockFeed's drain goroutine.
+// onBlock updates every installed filter under the API lock.
 func (api *FilterAPI) onBlock(b blocks.Block) {
 	api.mu.Lock()
-	ids := make([]rpc.ID, 0, len(api.filters))
-	for id := range api.filters {
-		ids = append(ids, id)
+	defer api.mu.Unlock()
+
+	if len(api.filters) == 0 {
+		return
 	}
-	api.mu.Unlock()
 
 	blockLogs := logsFromBlock(b)
 	hash := common.BytesToHash(b.Hash)
-
-	for _, id := range ids {
-		api.deliverOne(id, b, hash, blockLogs)
+	for id := range api.filters {
+		api.deliverOneLocked(id, b, hash, blockLogs)
 	}
 }
 
-func (api *FilterAPI) deliverOne(id rpc.ID, b blocks.Block, hash common.Hash, blockLogs []*types.Log) {
+func (api *FilterAPI) deliverOneLocked(id rpc.ID, b blocks.Block, hash common.Hash, blockLogs []*types.Log) {
 	defer func() {
 		if rec := recover(); rec != nil {
 			feedLogger.Warnf("filter %s panicked during deliver: %v", id, rec)
 		}
 	}()
 
-	api.mu.Lock()
-	defer api.mu.Unlock()
 	f, ok := api.filters[id]
 	if !ok {
 		return
@@ -169,31 +161,35 @@ func (api *FilterAPI) deliverOne(id rpc.ID, b blocks.Block, hash common.Hash, bl
 	}
 }
 
+func (api *FilterAPI) install(typ Type, crit gethfilters.FilterCriteria) rpc.ID {
+	id := rpc.NewID()
+	f := &filter{
+		typ:      typ,
+		deadline: time.NewTimer(api.timeout),
+	}
+	switch typ {
+	case BlocksSubscription:
+		f.hashes = make([]common.Hash, 0)
+	case LogsSubscription:
+		f.crit = crit
+		f.logs = make([]*types.Log, 0)
+	}
+	api.filters[id] = f
+	return id
+}
+
 // NewBlockFilter creates a filter that notifies on new block hashes.
 func (api *FilterAPI) NewBlockFilter(ctx context.Context) rpc.ID {
 	api.mu.Lock()
 	defer api.mu.Unlock()
-	id := rpc.NewID()
-	api.filters[id] = &filter{
-		typ:      BlocksSubscription,
-		deadline: time.NewTimer(api.timeout),
-		hashes:   make([]common.Hash, 0),
-	}
-	return id
+	return api.install(BlocksSubscription, gethfilters.FilterCriteria{})
 }
 
 // NewFilter creates a log filter. Criteria matching runs on each committed block.
 func (api *FilterAPI) NewFilter(ctx context.Context, crit gethfilters.FilterCriteria) (rpc.ID, error) {
 	api.mu.Lock()
 	defer api.mu.Unlock()
-	id := rpc.NewID()
-	api.filters[id] = &filter{
-		typ:      LogsSubscription,
-		deadline: time.NewTimer(api.timeout),
-		crit:     crit,
-		logs:     make([]*types.Log, 0),
-	}
-	return id, nil
+	return api.install(LogsSubscription, crit), nil
 }
 
 // UninstallFilter removes a filter by id. Returns true if it existed.
@@ -270,12 +266,13 @@ func (api *FilterAPI) GetFilterLogs(ctx context.Context, id rpc.ID) ([]*types.Lo
 	}
 	out := make([]*types.Log, len(domainLogs))
 	for i, l := range domainLogs {
-		out[i] = domainLogToTypes(l)
+		out[i] = DomainLogToTypes(l)
 	}
 	return out, nil
 }
 
-func domainLogToTypes(l domain.Log) *types.Log {
+// DomainLogToTypes converts a store log to the geth RPC shape.
+func DomainLogToTypes(l domain.Log) *types.Log {
 	topics := make([]common.Hash, len(l.Topics))
 	for i, t := range l.Topics {
 		topics[i] = common.BytesToHash(t)

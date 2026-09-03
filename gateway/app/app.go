@@ -176,10 +176,11 @@ func buildApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, logge
 		return nil, err
 	}
 
-	blockFeed := filters.NewBlockFeed()
+	filterAPI := filters.NewFilterAPI(gateway)
+	blockFeed := filters.NewBlockFeed(filterAPI)
 
 	// Chain must be called before gateway, to persist blocks before marking transactions complete.
-	// blockFeed observes commits without blocking the hot path (see filters.BlockFeed.Handle).
+	// blockFeed updates filter state synchronously in Handle, like the other handlers.
 	handlers := append(extraHandlers, blockFeed, chain, gateway)
 	gwSync, err := NewGatewaySynchronizer(cfg.Network.Protocol, chain, cfg.Network.Channel, cfg.Network.Namespace, cfg.Gateway.Committer.ToPeerConf(), gwSigner, logger, handlers...)
 	if err != nil {
@@ -217,14 +218,14 @@ func buildApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, logge
 		// Wrap the chain's store with SnapshotStore for snapshot/revert functionality
 		snapshotStore := storage.NewSnapshotStore(chain.Store)
 
-		rpcServer, err = testimpl.NewTestServer(gateway, testAccountMgr.Addresses, testAccountMgr.PrivateKeys, revertibleKVS, snapshotStore, gateway.TxQueue, blockFeed)
+		rpcServer, err = testimpl.NewTestServer(gateway, testAccountMgr.Addresses, testAccountMgr.PrivateKeys, revertibleKVS, snapshotStore, gateway.TxQueue, filterAPI)
 		if err != nil {
 			blockFeed.Close()
 			return nil, err
 		}
 	} else {
 		// Production server without test methods
-		rpcServer, err = api.NewServer(gateway, blockFeed)
+		rpcServer, err = api.NewServer(gateway, filterAPI)
 		if err != nil {
 			blockFeed.Close()
 			return nil, err

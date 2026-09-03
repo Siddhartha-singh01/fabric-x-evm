@@ -23,10 +23,11 @@ import (
 )
 
 func TestNewServer_RegistersFilterAPI(t *testing.T) {
-	feed := filters.NewBlockFeed()
-	defer feed.Close()
+	filterAPI := filters.NewFilterAPI(&stubBackend{chainID: big.NewInt(4011), blockNum: 1})
+	feed := filters.NewBlockFeed(filterAPI)
+	t.Cleanup(feed.Close)
 
-	rpcSrv, err := NewServer(&stubBackend{chainID: big.NewInt(4011), blockNum: 1}, feed)
+	rpcSrv, err := NewServer(&stubBackend{chainID: big.NewInt(4011), blockNum: 1}, filterAPI)
 	if err != nil {
 		t.Fatal(err)
 	}
