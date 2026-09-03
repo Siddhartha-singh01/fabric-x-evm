@@ -20,6 +20,7 @@ import (
 	eapp "github.com/hyperledger/fabric-x-evm/endorser/app"
 	econfig "github.com/hyperledger/fabric-x-evm/endorser/config"
 	"github.com/hyperledger/fabric-x-evm/endorser/execution"
+	"github.com/hyperledger/fabric-x-evm/endorser/testimpl"
 	"github.com/hyperledger/fabric-x-evm/gateway/config"
 )
 
@@ -63,6 +64,14 @@ func NewTestNode(ctx context.Context, tcfg TestNodeConfig) (*App, error) {
 		protocol = "fabric-x"
 	}
 
+	// Must mirror how NewEndorserCore derives monotonicVersions, so the
+	// DirectiveEndorser reads state the way the wrapped engine wrote it.
+	normProtocol, err := common.NormalizeProtocol(protocol)
+	if err != nil {
+		return nil, fmt.Errorf("failed to normalize protocol: %w", err)
+	}
+	monotonicVersions := normProtocol == common.ProtocolFabricX
+
 	evmConfig := execution.EVMConfig{
 		ChainConfig: common.BuildChainConfig(tcfg.ChainID),
 	}
@@ -71,20 +80,20 @@ func NewTestNode(ctx context.Context, tcfg TestNodeConfig) (*App, error) {
 	// does not wrap, and loadFixture stretches can commit far more than 128 blocks
 	// between reverts. Undersizing panics or drops historical reads mid-suite.
 	endorserDB := econfig.DB{Database: "memory", HistorySize: 16384}
-	endorser, endorserKVS, _, err := eapp.NewEndorserCore(endorserDB, testNodeChannel, testNodeNamespace, protocol, signer, evmConfig, true, econfig.Endorser{})
+	endorser, endorserKVS, endorserBuilder, err := eapp.NewEndorserCore(endorserDB, testNodeChannel, testNodeNamespace, protocol, signer, evmConfig, true, econfig.Endorser{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create endorser: %w", err)
 	}
+
+	// Test-only wrapper: the core endorser refuses directives, so hardhat_setBalance
+	// is only endorsable here.
+	directiveEndorser := testimpl.NewDirectiveEndorser(endorser, endorserKVS, testNodeNamespace, endorserBuilder, monotonicVersions)
 
 	// endorserKVS makes fabrictest's MVCC validation read the same DB the endorser reads.
 	nw, err := fabrictest.Start(ctx, testNodeNamespace, protocol, fabrictest.Config{}, endorserKVS)
 	if err != nil {
 		return nil, fmt.Errorf("failed to start in-process network: %w", err)
 	}
-
-	orderer := &common.Endpoint{Host: "127.0.0.1", Port: nw.OrdererPort}
-	peer := &common.Endpoint{Host: "127.0.0.1", Port: nw.PeerPort}
-
 	cfg := config.Config{
 		Network: common.Network{
 			Protocol:  protocol,
@@ -93,15 +102,29 @@ func NewTestNode(ctx context.Context, tcfg TestNodeConfig) (*App, error) {
 			NsVersion: testNodeNsVersion,
 			ChainID:   tcfg.ChainID,
 		},
+		Committer: common.ClientConfig{
+			Endpoint: &common.Endpoint{
+				Host: "127.0.0.1",
+				Port: nw.PeerPort,
+			},
+		},
 		Gateway: config.Gateway{
-			Listen:    tcfg.Listen,
-			Database:  config.DB{ConnString: ":memory:"},
-			Orderers:  []common.ClientConfig{{Endpoint: orderer}},
-			Committer: common.ClientConfig{Endpoint: peer},
+			Listen: tcfg.Listen,
+			Database: config.DB{
+				ConnString: ":memory:",
+			},
+			Orderers: []common.ClientConfig{
+				{
+					Endpoint: &common.Endpoint{
+						Host: "127.0.0.1",
+						Port: nw.OrdererPort,
+					},
+				},
+			},
 		},
 	}
 
-	application, err := buildApp(ctx, cfg, signer, logger, []eapi.Service{endorser}, nil, endorserKVS, true, tcfg.TestAccountsPath, endorserKVS)
+	application, err := buildApp(ctx, cfg, signer, logger, []eapi.Service{directiveEndorser}, endorserKVS, true, tcfg.TestAccountsPath, endorserKVS)
 	if err != nil {
 		return nil, err
 	}
