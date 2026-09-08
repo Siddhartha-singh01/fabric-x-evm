@@ -7,6 +7,7 @@ SPDX-License-Identifier: LGPL-3.0-or-later
 package testimpl
 
 import (
+	"bytes"
 	"context"
 	"math/big"
 	"testing"
@@ -109,6 +110,140 @@ func TestSetBalance_LowerExisting(t *testing.T) {
 	got := balFromRWS(b.lastRWS, directiveTestAddr)
 	if got == nil || got.Cmp(low) != 0 {
 		t.Fatalf("balance write = %v, want %s (delta-down)", got, low)
+	}
+}
+
+// codeFromRWS returns the code a read-write set writes for addr, or nil when
+// the set contains no code write.
+func codeFromRWS(rws blocks.ReadWriteSet, addr ethcommon.Address) []byte {
+	key := "acc:" + addr.Hex() + ":code"
+	for _, w := range rws.Writes {
+		if w.Key == key {
+			if w.IsDelete {
+				return []byte{}
+			}
+			return w.Value
+		}
+	}
+	return nil
+}
+
+func TestSetCode_Set(t *testing.T) {
+	kvs := estorage.NewLightKVS(8)
+	b := &noopBuilder{}
+	d := NewDirectiveEndorser(nil, kvs, testNS, b, true)
+
+	code := []byte{0x60, 0x2a, 0x60, 0x00, 0x52, 0x60, 0x20, 0x60, 0x00, 0xf3}
+	if _, err := d.SetCode(context.Background(), testInvocation(), directiveTestAddr, code); err != nil {
+		t.Fatalf("SetCode: %v", err)
+	}
+	got := codeFromRWS(b.lastRWS, directiveTestAddr)
+	if !bytes.Equal(got, code) {
+		t.Fatalf("code write = %x, want %x", got, code)
+	}
+}
+
+func TestSetCode_ClearWithEmpty(t *testing.T) {
+	kvs := estorage.NewLightKVS(8)
+	b := &noopBuilder{}
+	d := NewDirectiveEndorser(nil, kvs, testNS, b, true)
+
+	code := []byte{0x60, 0x2a}
+	if _, err := d.SetCode(context.Background(), testInvocation(), directiveTestAddr, code); err != nil {
+		t.Fatalf("seed SetCode: %v", err)
+	}
+	commitRWS(t, kvs, testNS, b.lastRWS)
+
+	if _, err := d.SetCode(context.Background(), testInvocation(), directiveTestAddr, nil); err != nil {
+		t.Fatalf("SetCode: %v", err)
+	}
+	got := codeFromRWS(b.lastRWS, directiveTestAddr)
+	if len(got) != 0 {
+		t.Fatalf("code write after clear = %x, want empty", got)
+	}
+}
+
+// storageFromRWS returns the storage word a read-write set writes for addr/key.
+// A cleared slot and an absent write both yield an empty word, so the second
+// result reports whether the write was there at all.
+func storageFromRWS(rws blocks.ReadWriteSet, addr ethcommon.Address, key ethcommon.Hash) ([]byte, bool) {
+	k := "str:" + addr.Hex() + ":" + key.Hex()
+	for _, w := range rws.Writes {
+		if w.Key == k {
+			if w.IsDelete {
+				return []byte{}, true
+			}
+			return w.Value, true
+		}
+	}
+	return nil, false
+}
+
+func TestSetStorageAt_Set(t *testing.T) {
+	kvs := estorage.NewLightKVS(8)
+	b := &noopBuilder{}
+	d := NewDirectiveEndorser(nil, kvs, testNS, b, true)
+
+	key := ethcommon.HexToHash("0x1")
+	value := ethcommon.HexToHash("0x2a")
+	if _, err := d.SetStorageAt(context.Background(), testInvocation(), directiveTestAddr, key, value); err != nil {
+		t.Fatalf("SetStorageAt: %v", err)
+	}
+	got, ok := storageFromRWS(b.lastRWS, directiveTestAddr, key)
+	if !ok {
+		t.Fatal("no storage write in the read-write set")
+	}
+	if !bytes.Equal(got, value.Bytes()) {
+		t.Fatalf("storage write = %x, want %x", got, value.Bytes())
+	}
+}
+
+func TestSetStorageAt_Overwrite(t *testing.T) {
+	kvs := estorage.NewLightKVS(8)
+	b := &noopBuilder{}
+	d := NewDirectiveEndorser(nil, kvs, testNS, b, true)
+
+	key := ethcommon.HexToHash("0x1")
+	first := ethcommon.HexToHash("0x2a")
+	if _, err := d.SetStorageAt(context.Background(), testInvocation(), directiveTestAddr, key, first); err != nil {
+		t.Fatalf("seed SetStorageAt: %v", err)
+	}
+	commitRWS(t, kvs, testNS, b.lastRWS)
+
+	second := ethcommon.HexToHash("0x2b")
+	if _, err := d.SetStorageAt(context.Background(), testInvocation(), directiveTestAddr, key, second); err != nil {
+		t.Fatalf("SetStorageAt: %v", err)
+	}
+	got, ok := storageFromRWS(b.lastRWS, directiveTestAddr, key)
+	if !ok {
+		t.Fatal("no storage write in the read-write set")
+	}
+	if !bytes.Equal(got, second.Bytes()) {
+		t.Fatalf("storage write = %x, want %x", got, second.Bytes())
+	}
+}
+
+func TestSetStorageAt_ClearWithZero(t *testing.T) {
+	kvs := estorage.NewLightKVS(8)
+	b := &noopBuilder{}
+	d := NewDirectiveEndorser(nil, kvs, testNS, b, true)
+
+	key := ethcommon.HexToHash("0x1")
+	value := ethcommon.HexToHash("0x2a")
+	if _, err := d.SetStorageAt(context.Background(), testInvocation(), directiveTestAddr, key, value); err != nil {
+		t.Fatalf("seed SetStorageAt: %v", err)
+	}
+	commitRWS(t, kvs, testNS, b.lastRWS)
+
+	if _, err := d.SetStorageAt(context.Background(), testInvocation(), directiveTestAddr, key, ethcommon.Hash{}); err != nil {
+		t.Fatalf("SetStorageAt: %v", err)
+	}
+	got, ok := storageFromRWS(b.lastRWS, directiveTestAddr, key)
+	if !ok {
+		t.Fatal("clear produced no storage write in the read-write set")
+	}
+	if len(got) != 0 {
+		t.Fatalf("storage write after clear = %x, want empty", got)
 	}
 }
 

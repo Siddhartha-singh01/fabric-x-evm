@@ -7,6 +7,7 @@ SPDX-License-Identifier: LGPL-3.0-or-later
 package core
 
 import (
+	"bytes"
 	"context"
 	crand "crypto/rand"
 	"fmt"
@@ -262,6 +263,96 @@ func (g *Gateway) SetBalance(ctx context.Context, addr common.Address, amount *b
 				continue
 			}
 			if got.Cmp(amount) == 0 {
+				return nil
+			}
+		}
+	}
+}
+
+// SetCode submits a setCode directive and blocks until the code change is
+// observable. Like SetBalance, it bypasses ValidateTx/TxQueue and commit is
+// observed by polling the target code directly.
+func (g *Gateway) SetCode(ctx context.Context, addr common.Address, code []byte) error {
+	if got, err := g.CodeAt(ctx, addr, nil); err == nil && bytes.Equal(got, code) {
+		return nil
+	}
+
+	end, err := g.endorsers.SetCode(ctx, addr, code)
+	if err != nil {
+		return fmt.Errorf("endorse setCode: %w", err)
+	}
+
+	hash, err := newDirectiveTxHash()
+	if err != nil {
+		return fmt.Errorf("build directive tx hash: %w", err)
+	}
+
+	if err := g.SubmitFabricTx(ctx, hash, end); err != nil {
+		return err
+	}
+
+	waitCtx, cancel := context.WithTimeout(ctx, directiveCommitTimeout)
+	defer cancel()
+
+	ticker := time.NewTicker(directivePollInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-waitCtx.Done():
+			return fmt.Errorf("setCode commit wait: %w", waitCtx.Err())
+		case <-ticker.C:
+			got, err := g.CodeAt(waitCtx, addr, nil)
+			if err != nil {
+				// Transient read error while committing; keep polling until timeout.
+				continue
+			}
+			if bytes.Equal(got, code) {
+				return nil
+			}
+		}
+	}
+}
+
+// SetStorageAt submits a setStorageAt directive and blocks until the storage change
+// is observable. Like SetBalance, it bypasses ValidateTx/TxQueue and commit is
+// observed by polling the target storage slot directly.
+func (g *Gateway) SetStorageAt(ctx context.Context, addr common.Address, key, value common.Hash) error {
+	if got, err := g.StorageAt(ctx, addr, key, nil); err == nil && common.BytesToHash(got) == value {
+		return nil
+	}
+
+	end, err := g.endorsers.SetStorageAt(ctx, addr, key, value)
+	if err != nil {
+		return fmt.Errorf("endorse setStorageAt: %w", err)
+	}
+
+	hash, err := newDirectiveTxHash()
+	if err != nil {
+		return fmt.Errorf("build directive tx hash: %w", err)
+	}
+
+	if err := g.SubmitFabricTx(ctx, hash, end); err != nil {
+		return err
+	}
+
+	waitCtx, cancel := context.WithTimeout(ctx, directiveCommitTimeout)
+	defer cancel()
+
+	ticker := time.NewTicker(directivePollInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-waitCtx.Done():
+			return fmt.Errorf("setStorageAt commit wait: %w", waitCtx.Err())
+		case <-ticker.C:
+			got, err := g.StorageAt(waitCtx, addr, key, nil)
+			if err != nil {
+				// Transient read error while committing; keep polling until timeout.
+				continue
+			}
+			if common.BytesToHash(got) == value {
 				return nil
 			}
 		}
