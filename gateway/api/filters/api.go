@@ -55,13 +55,16 @@ type filter struct {
 	testDeliver func(b blocks.Block)
 }
 
-// FilterAPI exposes the eth_*Filter JSON-RPC methods.
+// FilterAPI exposes the eth_*Filter JSON-RPC methods and newHeads subscriptions.
 type FilterAPI struct {
 	logs    LogQuerier
 	timeout time.Duration
 
-	mu      sync.Mutex
-	filters map[rpc.ID]*filter
+	mu         sync.Mutex
+	filters    map[rpc.ID]*filter
+	headSubs   map[uint64]*headSub
+	nextHeadID uint64
+	closed     bool
 
 	quit chan struct{}
 	wg   sync.WaitGroup
@@ -79,18 +82,26 @@ func NewFilterAPIWithTimeout(logs LogQuerier, timeout time.Duration) *FilterAPI 
 
 func newFilterAPI(logs LogQuerier, timeout time.Duration) *FilterAPI {
 	api := &FilterAPI{
-		logs:    logs,
-		timeout: timeout,
-		filters: make(map[rpc.ID]*filter),
-		quit:    make(chan struct{}),
+		logs:     logs,
+		timeout:  timeout,
+		filters:  make(map[rpc.ID]*filter),
+		headSubs: make(map[uint64]*headSub),
+		quit:     make(chan struct{}),
 	}
 	api.wg.Add(1)
 	go api.timeoutLoop()
 	return api
 }
 
-// Close stops the expiry loop.
+// Close stops the expiry loop and closes all newHeads subscribers.
 func (api *FilterAPI) Close() {
+	api.mu.Lock()
+	if !api.closed {
+		api.closed = true
+		api.closeHeadSubsLocked()
+	}
+	api.mu.Unlock()
+
 	select {
 	case <-api.quit:
 	default:
@@ -123,19 +134,24 @@ func (api *FilterAPI) timeoutLoop() {
 }
 
 // Handle implements blocks.BlockHandler. It updates every installed filter
-// under the API lock before returning.
-func (api *FilterAPI) Handle(_ context.Context, b blocks.Block) error {
+// and fans out to newHeads subscribers under the API lock before returning.
+func (api *FilterAPI) Handle(ctx context.Context, b blocks.Block) error {
 	api.mu.Lock()
 	defer api.mu.Unlock()
 
-	if len(api.filters) == 0 {
+	if len(api.filters) == 0 && len(api.headSubs) == 0 {
 		return nil
 	}
 
-	blockLogs := logsFromBlock(b)
-	hash := common.BytesToHash(b.Hash)
-	for id := range api.filters {
-		api.deliverOneLocked(id, b, hash, blockLogs)
+	if len(api.filters) > 0 {
+		blockLogs := logsFromBlock(b)
+		hash := common.BytesToHash(b.Hash)
+		for id := range api.filters {
+			api.deliverOneLocked(id, b, hash, blockLogs)
+		}
+	}
+	if len(api.headSubs) > 0 {
+		api.fanOutHeads(api.domainBlockFor(ctx, b))
 	}
 	return nil
 }
@@ -211,12 +227,12 @@ func (api *FilterAPI) UninstallFilter(id rpc.ID) bool {
 }
 
 // GetFilterChanges drains buffered hashes or logs since the last poll.
-func (api *FilterAPI) GetFilterChanges(id rpc.ID) (interface{}, error) {
+func (api *FilterAPI) GetFilterChanges(id rpc.ID) (any, error) {
 	api.mu.Lock()
 	defer api.mu.Unlock()
 	f, ok := api.filters[id]
 	if !ok {
-		return []interface{}{}, errFilterNotFound
+		return []any{}, errFilterNotFound
 	}
 	if !f.deadline.Stop() {
 		select {
@@ -242,7 +258,7 @@ func (api *FilterAPI) GetFilterChanges(id rpc.ID) (interface{}, error) {
 		}
 		return logs, nil
 	default:
-		return []interface{}{}, errFilterNotFound
+		return []any{}, errFilterNotFound
 	}
 }
 
