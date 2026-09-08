@@ -45,7 +45,7 @@ type App struct {
 	synchronizer  Synchronizer
 	gateway       *core.Gateway
 	chain         *core.Chain
-	blockFeed     *filters.BlockFeed
+	filterAPI     *filters.FilterAPI
 	rpcServer     *rpc.Server
 	httpServer    *http.Server
 }
@@ -182,14 +182,12 @@ func buildApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, logge
 	}
 
 	filterAPI := filters.NewFilterAPI(gateway)
-	blockFeed := filters.NewBlockFeed(filterAPI)
 
 	// Chain must be called before gateway, to persist blocks before marking transactions complete.
-	// blockFeed updates filter state synchronously in Handle, like the other handlers.
-	handlers := append(extraHandlers, blockFeed, chain, gateway)
+	handlers := append(extraHandlers, filterAPI, chain, gateway)
 	synchronizer, err := NewSynchronizer(cfg.Network.Protocol, chain, cfg.Network.Channel, cfg.Network.Namespace, cfg.Committer.ToPeerConf(), gwSigner, logger, handlers...)
 	if err != nil {
-		blockFeed.Close()
+		filterAPI.Close()
 		return nil, fmt.Errorf("failed to create synchronizer: %w", err)
 	}
 
@@ -202,21 +200,21 @@ func buildApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, logge
 
 		testAccountMgr, err := testimpl.LoadTestAccounts(testAccountsPath)
 		if err != nil {
-			blockFeed.Close()
+			filterAPI.Close()
 			return nil, fmt.Errorf("failed to load test accounts: %w", err)
 		}
 
 		// Pre-fund known Hardhat test EOAs so value transfers pass the balance
 		// check (issue #254). Test RPC / testnode only. Production accounts stay at zero.
 		if err := testimpl.FundTestAccounts(ctx, lightKVS, cfg.Network.Namespace, testAccountMgr.Addresses, testimpl.DefaultTestAccountBalance); err != nil {
-			blockFeed.Close()
+			filterAPI.Close()
 			return nil, fmt.Errorf("failed to fund test accounts: %w", err)
 		}
 		appLogger.Infof("Funded %d test accounts with %s wei each", len(testAccountMgr.Addresses), testimpl.DefaultTestAccountBalance.String())
 
 		revertibleKVS, ok := lightKVS.(estorage.Revertible)
 		if !ok {
-			blockFeed.Close()
+			filterAPI.Close()
 			return nil, fmt.Errorf("test RPC enabled but lightKVS is not Revertible")
 		}
 
@@ -225,14 +223,14 @@ func buildApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, logge
 
 		rpcServer, err = testimpl.NewTestServer(gateway, testAccountMgr.Addresses, testAccountMgr.PrivateKeys, revertibleKVS, snapshotStore, gateway.TxQueue, filterAPI)
 		if err != nil {
-			blockFeed.Close()
+			filterAPI.Close()
 			return nil, err
 		}
 	} else {
 		// Production server without test methods
 		rpcServer, err = api.NewServer(gateway, filterAPI)
 		if err != nil {
-			blockFeed.Close()
+			filterAPI.Close()
 			return nil, err
 		}
 	}
@@ -242,7 +240,7 @@ func buildApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, logge
 		synchronizer: synchronizer,
 		gateway:      gateway,
 		chain:        chain,
-		blockFeed:    blockFeed,
+		filterAPI:    filterAPI,
 		rpcServer:    rpcServer,
 	}, nil
 }
@@ -314,10 +312,10 @@ func (a *App) Shutdown() error {
 		appLogger.Debug("chain closed")
 	}
 
-	if a.blockFeed != nil {
-		appLogger.Debug("closing block feed...")
-		a.blockFeed.Close()
-		appLogger.Debug("block feed closed")
+	if a.filterAPI != nil {
+		appLogger.Debug("closing filter API...")
+		a.filterAPI.Close()
+		appLogger.Debug("filter API closed")
 	}
 
 	// Close dialed endorser connections (split deployment only)

@@ -39,19 +39,18 @@ func testBlock(num uint64, hash byte) blocks.Block {
 	return blocks.Block{Number: num, Hash: h}
 }
 
-func newTestSystem(t *testing.T, logs LogQuerier) (*BlockFeed, *FilterAPI) {
+func newTestAPI(t *testing.T, logs LogQuerier) *FilterAPI {
 	t.Helper()
 	api := NewFilterAPI(logs)
-	feed := NewBlockFeed(api)
-	t.Cleanup(feed.Close)
-	return feed, api
+	t.Cleanup(api.Close)
+	return api
 }
 
 func TestBlockFilter_GetFilterChangesDrains(t *testing.T) {
-	feed, api := newTestSystem(t, &stubLogs{head: 1})
+	api := newTestAPI(t, &stubLogs{head: 1})
 
 	id := api.NewBlockFilter(context.Background())
-	if err := feed.Handle(context.Background(), testBlock(1, 0x11)); err != nil {
+	if err := api.Handle(context.Background(), testBlock(1, 0x11)); err != nil {
 		t.Fatal(err)
 	}
 
@@ -75,11 +74,11 @@ func TestBlockFilter_GetFilterChangesDrains(t *testing.T) {
 }
 
 func TestBlockFilter_MultipleFiltersIndependent(t *testing.T) {
-	feed, api := newTestSystem(t, nil)
+	api := newTestAPI(t, nil)
 
 	id1 := api.NewBlockFilter(context.Background())
 	id2 := api.NewBlockFilter(context.Background())
-	if err := feed.Handle(context.Background(), testBlock(2, 0x22)); err != nil {
+	if err := api.Handle(context.Background(), testBlock(2, 0x22)); err != nil {
 		t.Fatal(err)
 	}
 
@@ -96,7 +95,7 @@ func TestBlockFilter_MultipleFiltersIndependent(t *testing.T) {
 }
 
 func TestUninstallFilter(t *testing.T) {
-	_, api := newTestSystem(t, nil)
+	api := newTestAPI(t, nil)
 
 	id := api.NewBlockFilter(context.Background())
 	if !api.UninstallFilter(id) {
@@ -112,8 +111,7 @@ func TestUninstallFilter(t *testing.T) {
 
 func TestFilterExpiry(t *testing.T) {
 	api := NewFilterAPIWithTimeout(nil, 50*time.Millisecond)
-	feed := NewBlockFeed(api)
-	t.Cleanup(feed.Close)
+	t.Cleanup(api.Close)
 
 	id := api.NewBlockFilter(context.Background())
 	deadline := time.Now().Add(3 * time.Second)
@@ -130,7 +128,7 @@ func TestFilterExpiry(t *testing.T) {
 }
 
 func TestLogFilter_MatchAndMiss(t *testing.T) {
-	_, api := newTestSystem(t, &stubLogs{head: 1})
+	api := newTestAPI(t, &stubLogs{head: 1})
 
 	addr := common.HexToAddress("0x00000000000000000000000000000000000000aa")
 	id, err := api.NewFilter(context.Background(), gethfilters.FilterCriteria{
@@ -161,7 +159,7 @@ func TestLogFilter_MatchAndMiss(t *testing.T) {
 
 func TestGetFilterLogs_Historical(t *testing.T) {
 	wantAddr := []byte{0xaa}
-	_, api := newTestSystem(t, &stubLogs{
+	api := newTestAPI(t, &stubLogs{
 		head: 9,
 		logs: []domain.Log{{
 			Address:     wantAddr,
@@ -187,7 +185,7 @@ func TestGetFilterLogs_Historical(t *testing.T) {
 }
 
 func TestGetFilterLogs_Errors(t *testing.T) {
-	_, api := newTestSystem(t, &stubLogs{head: 1, err: context.DeadlineExceeded})
+	api := newTestAPI(t, &stubLogs{head: 1, err: context.DeadlineExceeded})
 
 	blockID := api.NewBlockFilter(context.Background())
 	if _, err := api.GetFilterLogs(context.Background(), blockID); err == nil {
@@ -206,8 +204,7 @@ func TestGetFilterLogs_Errors(t *testing.T) {
 	}
 
 	apiNil := NewFilterAPI(nil)
-	feedNil := NewBlockFeed(apiNil)
-	t.Cleanup(feedNil.Close)
+	t.Cleanup(apiNil.Close)
 	id2, _ := apiNil.NewFilter(context.Background(), gethfilters.FilterCriteria{})
 	got, err := apiNil.GetFilterLogs(context.Background(), id2)
 	if err != nil || len(got) != 0 {
@@ -216,10 +213,10 @@ func TestGetFilterLogs_Errors(t *testing.T) {
 }
 
 func TestHandle_UpdatesSynchronously(t *testing.T) {
-	feed, api := newTestSystem(t, nil)
+	api := newTestAPI(t, nil)
 	id := api.NewBlockFilter(context.Background())
 
-	if err := feed.Handle(context.Background(), testBlock(3, 0x33)); err != nil {
+	if err := api.Handle(context.Background(), testBlock(3, 0x33)); err != nil {
 		t.Fatal(err)
 	}
 
@@ -233,11 +230,10 @@ func TestHandle_UpdatesSynchronously(t *testing.T) {
 
 func TestShutdown_CloseReturns(t *testing.T) {
 	api := NewFilterAPI(nil)
-	feed := NewBlockFeed(api)
 
 	done := make(chan struct{})
 	go func() {
-		feed.Close()
+		api.Close()
 		close(done)
 	}()
 	select {
@@ -248,7 +244,7 @@ func TestShutdown_CloseReturns(t *testing.T) {
 }
 
 func TestPanicIsolation(t *testing.T) {
-	feed, api := newTestSystem(t, nil)
+	api := newTestAPI(t, nil)
 
 	bad := api.NewBlockFilter(context.Background())
 	good := api.NewBlockFilter(context.Background())
@@ -257,7 +253,7 @@ func TestPanicIsolation(t *testing.T) {
 	api.filters[bad].testDeliver = func(blocks.Block) { panic("boom") }
 	api.mu.Unlock()
 
-	if err := feed.Handle(context.Background(), testBlock(7, 0x77)); err != nil {
+	if err := api.Handle(context.Background(), testBlock(7, 0x77)); err != nil {
 		t.Fatal(err)
 	}
 
@@ -277,9 +273,9 @@ func TestPanicIsolation(t *testing.T) {
 	}
 }
 
-func TestOnBlock_EmptyFiltersReturnsEarly(t *testing.T) {
-	feed, _ := newTestSystem(t, nil)
-	if err := feed.Handle(context.Background(), testBlock(1, 1)); err != nil {
+func TestHandle_EmptyFiltersReturnsEarly(t *testing.T) {
+	api := newTestAPI(t, nil)
+	if err := api.Handle(context.Background(), testBlock(1, 1)); err != nil {
 		t.Fatal(err)
 	}
 }

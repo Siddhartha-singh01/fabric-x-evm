@@ -18,8 +18,7 @@ import (
 
 func TestRPC_NewBlockFilterRoundTrip(t *testing.T) {
 	apiInst := filters.NewFilterAPI(nil)
-	feed := filters.NewBlockFeed(apiInst)
-	t.Cleanup(feed.Close)
+	t.Cleanup(apiInst.Close)
 
 	srv := rpc.NewServer()
 	if err := srv.RegisterName("eth", apiInst); err != nil {
@@ -37,7 +36,7 @@ func TestRPC_NewBlockFilterRoundTrip(t *testing.T) {
 
 	h := make([]byte, 32)
 	h[31] = 0xab
-	_ = feed.Handle(context.Background(), blocks.Block{Number: 3, Hash: h})
+	_ = apiInst.Handle(context.Background(), blocks.Block{Number: 3, Hash: h})
 
 	var changes []common.Hash
 	if err := client.Call(&changes, "eth_getFilterChanges", id); err != nil {

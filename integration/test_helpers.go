@@ -150,7 +150,7 @@ type HandlerChainFactory func(
 //     block the endorser's state already reflects it — this gives read-your-writes
 //     semantics for the test RPC's synchronous eth_sendRawTransaction.
 //
-//  2. BlockFeed: update eth_*Filter state synchronously for the committed block.
+//  2. FilterAPI: update eth_*Filter state synchronously for the committed block.
 //
 //  3. Chain: persist the block and its Ethereum transactions to the SQLite store and
 //     update the state-root trie. Must run before the gateway so that eth_getBlockBy*
@@ -179,15 +179,14 @@ func defaultHandlerChain(t *testing.T, ctx context.Context, cfg config.Config, e
 	}
 
 	filterAPI := filters.NewFilterAPI(gw)
-	blockFeed := filters.NewBlockFeed(filterAPI)
-	t.Cleanup(blockFeed.Close)
+	t.Cleanup(filterAPI.Close)
 	registerIntegrationFilters(gw, filterAPI)
 
 	handlers := make([]blocks.BlockHandler, 0, len(dbs)+3)
 	for _, db := range dbs {
 		handlers = append(handlers, db)
 	}
-	handlers = append(handlers, blockFeed, chain, gw)
+	handlers = append(handlers, filterAPI, chain, gw)
 	return gw, handlers, chain
 }
 
@@ -649,8 +648,8 @@ func getEndorsedTxForSmartContractCall(t *testing.T, client *EthClient, addr eth
 	return processCommon(t, gw, false, tx)
 }
 
-// integrationFilters ties a FilterAPI to the gateway that owns the matching BlockFeed
-// in the synchronizer handler chain, so InProc RPC sees the same filter state.
+// integrationFilters ties a FilterAPI to the gateway that owns it in the
+// synchronizer handler chain, so InProc RPC sees the same filter state.
 var integrationFilters sync.Map // *core.Gateway -> *filters.FilterAPI
 
 func registerIntegrationFilters(gw *core.Gateway, api *filters.FilterAPI) {

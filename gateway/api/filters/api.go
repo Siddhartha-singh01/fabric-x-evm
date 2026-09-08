@@ -16,9 +16,12 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	gethfilters "github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/hyperledger/fabric-lib-go/common/flogging"
 	"github.com/hyperledger/fabric-x-evm/gateway/domain"
 	"github.com/hyperledger/fabric-x-sdk/blocks"
 )
+
+var filterLogger = flogging.MustGetLogger("gateway.api.filters")
 
 const defaultTimeout = 5 * time.Minute
 
@@ -64,7 +67,7 @@ type FilterAPI struct {
 	wg   sync.WaitGroup
 }
 
-// NewFilterAPI starts the expiry loop. Pair with NewBlockFeed(api) for the handler.
+// NewFilterAPI starts the expiry loop. FilterAPI itself is a blocks.BlockHandler.
 func NewFilterAPI(logs LogQuerier) *FilterAPI {
 	return newFilterAPI(logs, defaultTimeout)
 }
@@ -119,13 +122,14 @@ func (api *FilterAPI) timeoutLoop() {
 	}
 }
 
-// onBlock updates every installed filter under the API lock.
-func (api *FilterAPI) onBlock(b blocks.Block) {
+// Handle implements blocks.BlockHandler. It updates every installed filter
+// under the API lock before returning.
+func (api *FilterAPI) Handle(_ context.Context, b blocks.Block) error {
 	api.mu.Lock()
 	defer api.mu.Unlock()
 
 	if len(api.filters) == 0 {
-		return
+		return nil
 	}
 
 	blockLogs := logsFromBlock(b)
@@ -133,12 +137,13 @@ func (api *FilterAPI) onBlock(b blocks.Block) {
 	for id := range api.filters {
 		api.deliverOneLocked(id, b, hash, blockLogs)
 	}
+	return nil
 }
 
 func (api *FilterAPI) deliverOneLocked(id rpc.ID, b blocks.Block, hash common.Hash, blockLogs []*types.Log) {
 	defer func() {
 		if rec := recover(); rec != nil {
-			feedLogger.Warnf("filter %s panicked during deliver: %v", id, rec)
+			filterLogger.Warnf("filter %s panicked during deliver: %v", id, rec)
 		}
 	}()
 

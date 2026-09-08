@@ -16,7 +16,6 @@ import (
 
 // CriteriaToLogFilter maps geth FilterCriteria onto the store's LogFilter.
 // head is the current chain tip, used when fromBlock is latest/pending/omitted.
-// Same rules as gateway/api.EthAPI.filterCriteriaToLogFilter.
 func CriteriaToLogFilter(crit gethfilters.FilterCriteria, head uint64) domain.LogFilter {
 	filter := domain.LogFilter{}
 

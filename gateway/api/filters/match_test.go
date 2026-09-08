@@ -188,10 +188,9 @@ func TestMatchLogs_AddressTopicsAndRange(t *testing.T) {
 	}
 }
 
-func TestLogFilter_LivePathViaFeed(t *testing.T) {
+func TestLogFilter_LivePathViaHandle(t *testing.T) {
 	api := NewFilterAPI(&stubLogs{head: 1})
-	feed := NewBlockFeed(api)
-	t.Cleanup(feed.Close)
+	t.Cleanup(api.Close)
 
 	addr := common.HexToAddress("0x00000000000000000000000000000000000000aa")
 	id, err := api.NewFilter(context.Background(), gethfilters.FilterCriteria{
@@ -212,7 +211,7 @@ func TestLogFilter_LivePathViaFeed(t *testing.T) {
 		Data:    []byte{0x00},
 	}})
 
-	_ = feed.Handle(context.Background(), blocks.Block{
+	_ = api.Handle(context.Background(), blocks.Block{
 		Number: 3,
 		Hash:   bytes32(3),
 		Transactions: []blocks.Transaction{

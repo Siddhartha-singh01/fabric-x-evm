@@ -24,8 +24,7 @@ import (
 
 func TestNewServer_RegistersFilterAPI(t *testing.T) {
 	filterAPI := filters.NewFilterAPI(&stubBackend{chainID: big.NewInt(4011), blockNum: 1})
-	feed := filters.NewBlockFeed(filterAPI)
-	t.Cleanup(feed.Close)
+	t.Cleanup(filterAPI.Close)
 
 	rpcSrv, err := NewServer(&stubBackend{chainID: big.NewInt(4011), blockNum: 1}, filterAPI)
 	if err != nil {
