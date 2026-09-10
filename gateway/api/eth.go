@@ -464,11 +464,19 @@ func (api *EthAPI) FeeHistory(ctx context.Context, blockCount gethmath.HexOrDeci
 // eth_getLogs
 func (api *EthAPI) GetLogs(ctx context.Context, crit filters.FilterCriteria) ([]*types.Log, error) {
 	logger.Debugf("EthAPI.GetLogs() called with criteria=%+v", crit)
-	query, err := api.filterCriteriaToLogFilter(ctx, crit)
-	if err != nil {
-		logger.Debugf("EthAPI.GetLogs() returning error: %v", err)
-		return nil, err
+
+	head := uint64(0)
+	needHead := crit.BlockHash == nil && (crit.FromBlock == nil ||
+		(crit.FromBlock.Sign() < 0 && crit.FromBlock.Cmp(big.NewInt(int64(rpc.EarliestBlockNumber))) != 0))
+	if needHead {
+		h, err := api.b.BlockNumber(ctx)
+		if err != nil {
+			logger.Debugf("EthAPI.GetLogs() returning error: %v", err)
+			return nil, err
+		}
+		head = h
 	}
+	query := apifilters.CriteriaToLogFilter(crit, head)
 
 	logs, err := api.b.GetLogs(ctx, query)
 	if err != nil {
@@ -478,30 +486,12 @@ func (api *EthAPI) GetLogs(ctx context.Context, crit filters.FilterCriteria) ([]
 
 	result := make([]*types.Log, len(logs))
 	for i, l := range logs {
-		result[i] = domainLogToTypesLog(l)
+		result[i] = apifilters.DomainLogToTypes(l)
 	}
 	if resultJSON, err := json.Marshal(result); err == nil {
 		logger.Debugf("EthAPI.GetLogs() returning %d logs: %s", len(result), string(resultJSON))
 	}
 	return result, nil
-}
-
-func (api *EthAPI) filterCriteriaToLogFilter(ctx context.Context, crit filters.FilterCriteria) (domain.LogFilter, error) {
-	head := uint64(0)
-	needHead := crit.BlockHash == nil && (crit.FromBlock == nil ||
-		(crit.FromBlock.Sign() < 0 && crit.FromBlock.Cmp(big.NewInt(int64(rpc.EarliestBlockNumber))) != 0))
-	if needHead {
-		h, err := api.b.BlockNumber(ctx)
-		if err != nil {
-			return domain.LogFilter{}, err
-		}
-		head = h
-	}
-	return apifilters.CriteriaToLogFilter(crit, head), nil
-}
-
-func domainLogToTypesLog(l domain.Log) *types.Log {
-	return apifilters.DomainLogToTypes(l)
 }
 
 // hexArg type-asserts a call argument, so a non-string (say a JSON number) is invalid params rather than a panic.
