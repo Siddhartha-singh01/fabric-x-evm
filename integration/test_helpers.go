@@ -38,6 +38,7 @@ import (
 	"github.com/hyperledger/fabric-x-evm/gateway/app"
 	"github.com/hyperledger/fabric-x-evm/gateway/config"
 	"github.com/hyperledger/fabric-x-evm/gateway/core"
+	"github.com/hyperledger/fabric-x-evm/gateway/testimpl"
 	"github.com/hyperledger/fabric-x-evm/gateway/testimpl/primer"
 	sdk "github.com/hyperledger/fabric-x-sdk"
 	"github.com/hyperledger/fabric-x-sdk/blocks"
@@ -167,7 +168,11 @@ func defaultHandlerChain(t *testing.T, ctx context.Context, cfg config.Config, e
 	if cfg.Network.Namespace == "synthetic" {
 		txPerSec = 10000
 	}
-	gw, err := app.BuildGateway(ctx, ends, gwSigner, cfg.Network, chain, submitters, cfg.Gateway.SubmitterCount, cfg.Gateway.WorkerCount, txQueue, cfg.Gateway.EndorsementChanSize, txPerSec)
+	// Tests prime and revert ledger state out of band, so the harness parks nothing.
+	if txQueue == nil {
+		txQueue = core.NewTxQueue()
+	}
+	gw, err := app.BuildGateway(ctx, ends, gwSigner, cfg.Network, chain, submitters, cfg.Gateway.SubmitterCount, cfg.Gateway.WorkerCount, txQueue, testimpl.NewPassthroughGate(txQueue), cfg.Gateway.EndorsementChanSize, txPerSec)
 	if err != nil {
 		t.Fatalf("build gateway: %v", err)
 	}
