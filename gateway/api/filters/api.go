@@ -44,11 +44,11 @@ type LogQuerier interface {
 }
 
 type filter struct {
-	typ      Type
-	deadline *time.Timer
-	hashes   []common.Hash
-	crit     gethfilters.FilterCriteria
-	logs     []*types.Log
+	typ       Type
+	expiresAt time.Time
+	hashes    []common.Hash
+	crit      gethfilters.FilterCriteria
+	logs      []*types.Log
 
 	// testDeliver, if set, runs inside the per-filter recover scope instead of
 	// the normal deliver path. Used to prove panic isolation.
@@ -112,20 +112,27 @@ func (api *FilterAPI) Close() {
 
 func (api *FilterAPI) timeoutLoop() {
 	defer api.wg.Done()
-	ticker := time.NewTicker(api.timeout)
+	// Sweep more often than the filter timeout so expired filters are removed
+	// close to their deadline instead of lingering for almost another full period.
+	sweep := api.timeout / 3
+	if sweep < time.Second {
+		sweep = time.Second
+	}
+	if sweep > time.Minute {
+		sweep = time.Minute
+	}
+	ticker := time.NewTicker(sweep)
 	defer ticker.Stop()
 	for {
 		select {
 		case <-api.quit:
 			return
 		case <-ticker.C:
+			now := time.Now()
 			api.mu.Lock()
 			for id, f := range api.filters {
-				select {
-				case <-f.deadline.C:
-					f.deadline.Stop()
+				if !now.Before(f.expiresAt) {
 					delete(api.filters, id)
-				default:
 				}
 			}
 			api.mu.Unlock()
@@ -144,7 +151,17 @@ func (api *FilterAPI) Handle(ctx context.Context, b blocks.Block) error {
 	}
 
 	if len(api.filters) > 0 {
-		blockLogs := logsFromBlock(b)
+		needLogs := false
+		for _, f := range api.filters {
+			if f.typ == LogsSubscription {
+				needLogs = true
+				break
+			}
+		}
+		var blockLogs []*types.Log
+		if needLogs {
+			blockLogs = logsFromBlock(b)
+		}
 		hash := common.BytesToHash(b.Hash)
 		for id := range api.filters {
 			api.deliverOneLocked(id, b, hash, blockLogs)
@@ -185,8 +202,8 @@ func (api *FilterAPI) deliverOneLocked(id rpc.ID, b blocks.Block, hash common.Ha
 func (api *FilterAPI) install(typ Type, crit gethfilters.FilterCriteria) rpc.ID {
 	id := rpc.NewID()
 	f := &filter{
-		typ:      typ,
-		deadline: time.NewTimer(api.timeout),
+		typ:       typ,
+		expiresAt: time.Now().Add(api.timeout),
 	}
 	switch typ {
 	case BlocksSubscription:
@@ -217,12 +234,10 @@ func (api *FilterAPI) NewFilter(ctx context.Context, crit gethfilters.FilterCrit
 func (api *FilterAPI) UninstallFilter(id rpc.ID) bool {
 	api.mu.Lock()
 	defer api.mu.Unlock()
-	f, ok := api.filters[id]
-	if !ok {
+	if _, ok := api.filters[id]; !ok {
 		return false
 	}
 	delete(api.filters, id)
-	f.deadline.Stop()
 	return true
 }
 
@@ -234,13 +249,9 @@ func (api *FilterAPI) GetFilterChanges(id rpc.ID) (any, error) {
 	if !ok {
 		return []any{}, errFilterNotFound
 	}
-	if !f.deadline.Stop() {
-		select {
-		case <-f.deadline.C:
-		default:
-		}
+	if !api.resetDeadlineLocked(id, f) {
+		return []interface{}{}, errFilterNotFound
 	}
-	f.deadline.Reset(api.timeout)
 
 	switch f.typ {
 	case BlocksSubscription:
@@ -270,6 +281,10 @@ func (api *FilterAPI) GetFilterLogs(ctx context.Context, id rpc.ID) ([]*types.Lo
 		api.mu.Unlock()
 		return nil, errFilterNotFound
 	}
+	if !api.resetDeadlineLocked(id, f) {
+		api.mu.Unlock()
+		return nil, errFilterNotFound
+	}
 	crit := f.crit
 	api.mu.Unlock()
 
@@ -290,6 +305,18 @@ func (api *FilterAPI) GetFilterLogs(ctx context.Context, id rpc.ID) ([]*types.Lo
 		out[i] = DomainLogToTypes(l)
 	}
 	return out, nil
+}
+
+// resetDeadlineLocked refreshes a live filter's expiry. If the deadline has
+// already passed, the filter is deleted and false is returned so callers treat
+// it as not found instead of reviving an expired filter.
+func (api *FilterAPI) resetDeadlineLocked(id rpc.ID, f *filter) bool {
+	if !time.Now().Before(f.expiresAt) {
+		delete(api.filters, id)
+		return false
+	}
+	f.expiresAt = time.Now().Add(api.timeout)
+	return true
 }
 
 // DomainLogToTypes converts a store log to the geth RPC shape.

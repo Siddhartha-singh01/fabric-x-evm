@@ -127,6 +127,47 @@ func TestFilterExpiry(t *testing.T) {
 	t.Fatal("filter was not expired")
 }
 
+func TestGetFilterChanges_DoesNotReviveExpired(t *testing.T) {
+	api := NewFilterAPIWithTimeout(nil, time.Hour)
+	t.Cleanup(api.Close)
+
+	id := api.NewBlockFilter(context.Background())
+	api.mu.Lock()
+	api.filters[id].expiresAt = time.Now().Add(-time.Millisecond)
+	api.mu.Unlock()
+
+	if _, err := api.GetFilterChanges(id); err == nil {
+		t.Fatal("expected expired filter to be not found")
+	}
+	api.mu.Lock()
+	_, ok := api.filters[id]
+	api.mu.Unlock()
+	if ok {
+		t.Fatal("expired filter should have been deleted")
+	}
+}
+
+func TestGetFilterLogs_ResetsDeadline(t *testing.T) {
+	api := NewFilterAPIWithTimeout(&stubLogs{head: 1}, 80*time.Millisecond)
+	t.Cleanup(api.Close)
+
+	id, err := api.NewFilter(context.Background(), gethfilters.FilterCriteria{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(45 * time.Millisecond)
+	if _, err := api.GetFilterLogs(context.Background(), id); err != nil {
+		t.Fatalf("GetFilterLogs: %v", err)
+	}
+	time.Sleep(45 * time.Millisecond)
+	api.mu.Lock()
+	_, ok := api.filters[id]
+	api.mu.Unlock()
+	if !ok {
+		t.Fatal("GetFilterLogs should have refreshed the deadline")
+	}
+}
+
 func TestLogFilter_MatchAndMiss(t *testing.T) {
 	api := newTestAPI(t, &stubLogs{head: 1})
 

@@ -14,7 +14,6 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
-	"runtime"
 	"strings"
 	"sync"
 	"testing"
@@ -43,6 +42,8 @@ import (
 	"github.com/hyperledger/fabric-x-evm/gateway/app"
 	"github.com/hyperledger/fabric-x-evm/gateway/config"
 	"github.com/hyperledger/fabric-x-evm/gateway/core"
+	"github.com/hyperledger/fabric-x-evm/gateway/testimpl"
+	"github.com/hyperledger/fabric-x-evm/gateway/testimpl/primer"
 	sdk "github.com/hyperledger/fabric-x-sdk"
 	"github.com/hyperledger/fabric-x-sdk/blocks"
 	bfab "github.com/hyperledger/fabric-x-sdk/blocks/fabric"
@@ -81,9 +82,9 @@ func (localSigner) Serialize() ([]byte, error) {
 //
 // Example usage:
 //
-//	primer, err := th.NewStatePrimer()
-//	err = primer.SetNonce(addr1, 5).SetCode(addr2, contractCode).Commit(ctx)
-func (th *TestHarness) NewStatePrimer() (*StatePrimer, error) {
+//	sp, err := th.NewStatePrimer()
+//	err = sp.SetNonce(addr1, 5).SetCode(addr2, contractCode).Commit(ctx)
+func (th *TestHarness) NewStatePrimer() (*primer.StatePrimer, error) {
 	return th.Primer.Reset()
 }
 
@@ -99,15 +100,15 @@ func (th *TestHarness) PrimeStateFromJSON(ctx context.Context, jsonFilePath stri
 		return nil
 	}
 
-	primer, err := th.NewStatePrimer()
+	sp, err := th.NewStatePrimer()
 	if err != nil {
 		return err
 	}
-	primer, err = primer.LoadFromJSON(jsonFilePath)
+	sp, err = sp.LoadFromJSON(jsonFilePath)
 	if err != nil {
 		return err
 	}
-	return primer.Commit(ctx, wait)
+	return sp.Commit(ctx, wait)
 }
 
 // HandlerChainFactory builds the gateway and the complete synchronizer handler
@@ -173,13 +174,20 @@ func defaultHandlerChain(t *testing.T, ctx context.Context, cfg config.Config, e
 	if cfg.Network.Namespace == "synthetic" {
 		txPerSec = 10000
 	}
-	gw, err := app.BuildGateway(ctx, ends, gwSigner, cfg.Network, chain, submitters, cfg.Gateway.SubmitterCount, cfg.Gateway.WorkerCount, txQueue, cfg.Gateway.EndorsementChanSize, txPerSec)
+	// Tests prime and revert ledger state out of band, so the harness parks nothing.
+	if txQueue == nil {
+		txQueue = core.NewTxQueue()
+	}
+	gw, err := app.BuildGateway(ctx, ends, gwSigner, cfg.Network, chain, submitters, cfg.Gateway.SubmitterCount, cfg.Gateway.WorkerCount, txQueue, testimpl.NewPassthroughGate(txQueue), cfg.Gateway.EndorsementChanSize, txPerSec)
 	if err != nil {
 		t.Fatalf("build gateway: %v", err)
 	}
 
 	filterAPI := filters.NewFilterAPI(gw)
-	t.Cleanup(filterAPI.Close)
+	t.Cleanup(func() {
+		filterAPI.Close()
+		integrationFilters.Delete(gw)
+	})
 	registerIntegrationFilters(gw, filterAPI)
 
 	handlers := make([]blocks.BlockHandler, 0, len(dbs)+3)
@@ -278,7 +286,7 @@ func buildTestHarness(t *testing.T, logger sdk.Logger, cfg config.Config, evmCon
 	t.Cleanup(func() { gw.Stop() })
 
 	// Create state primer (use first submitter)
-	primer, err := NewStatePrimer(gw, submitters[0], dbs[0], cfg.Network.Namespace, gwSigner, builders, cfg.Network.Channel, cfg.Network.NsVersion, cfg.Network.Protocol == "fabric-x")
+	sp, err := primer.NewStatePrimer(gw, submitters[0], dbs[0], cfg.Network.Namespace, gwSigner, builders, cfg.Network.Channel, cfg.Network.NsVersion, cfg.Network.Protocol == "fabric-x")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -287,7 +295,7 @@ func buildTestHarness(t *testing.T, logger sdk.Logger, cfg config.Config, evmCon
 		Gateways:       []*core.Gateway{gw},
 		endorsers:      ends,
 		ethChainConfig: evmConfig.ChainConfig,
-		Primer:         primer,
+		Primer:         sp,
 		DBs:            dbs,
 	}
 
@@ -492,7 +500,7 @@ func newFileConfigHarness(t *testing.T, logger sdk.Logger, evmConfig execution.E
 // (which is what keeps their state current), and the builder is what the state
 // primer signs with. Only the gateway's own path to them is remote, which is
 // the part these tests exist to exercise.
-func newSplitFileConfigHarness(t *testing.T, logger sdk.Logger, evmConfig execution.EVMConfig, primeDbPath, gatewayConfigFile string, endorserConfigFiles []string, trustedCAs []string, configOverrides map[string]any) (*TestHarness, error) {
+func newSplitFileConfigHarness(t *testing.T, logger sdk.Logger, evmConfig execution.EVMConfig, primeDbPath, gatewayConfigFile string, endorserConfigFiles []string, configOverrides map[string]any) (*TestHarness, error) {
 	cfg, err := config.Load(gatewayConfigFile)
 	if err != nil {
 		return nil, fmt.Errorf("load config: %w", err)
@@ -510,7 +518,7 @@ func newSplitFileConfigHarness(t *testing.T, logger sdk.Logger, evmConfig execut
 
 	endorsers := make([]EndorserComponents, len(endorserConfigFiles))
 	for i, ecfgFile := range endorserConfigFiles {
-		db, builder, client := startServedEndorser(t, ecfgFile, evmConfig, trustedCAs, &cfg.Gateway.Endorsers[i])
+		db, builder, client := startServedEndorser(t, ecfgFile, evmConfig, &cfg.Gateway.Endorsers[i])
 		endorsers[i] = EndorserComponents{KVS: db, Builder: builder, Service: client}
 	}
 
@@ -601,7 +609,7 @@ type TestHarness struct {
 	Gateways       []*core.Gateway
 	endorsers      []eapi.Service
 	ethChainConfig *params.ChainConfig
-	Primer         *StatePrimer
+	Primer         *primer.StatePrimer
 }
 
 func (th *TestHarness) Stop() error {
@@ -656,10 +664,14 @@ func registerIntegrationFilters(gw *core.Gateway, api *filters.FilterAPI) {
 	integrationFilters.Store(gw, api)
 }
 
+// NewNativeEthClient dials the gateway in-process with the FilterAPI from the
+// handler chain when one was registered for this gateway.
 func NewNativeEthClient(gw *core.Gateway) (*ethclient.Client, error) {
 	var filterAPI *filters.FilterAPI
 	if v, ok := integrationFilters.Load(gw); ok {
-		filterAPI = v.(*filters.FilterAPI)
+		if api, ok := v.(*filters.FilterAPI); ok {
+			filterAPI = api
+		}
 	}
 	rpcServer, err := gwapi.NewServer(gw, filterAPI)
 	if err != nil {
@@ -823,50 +835,10 @@ func extractEthTxFromProposal(proposal *peer.Proposal) (*types.Transaction, erro
 }
 
 func waitForCommitT(t *testing.T, ec *ethclient.Client, tx *types.Transaction) {
-	err := waitForCommit(t.Context(), ec, tx)
+	err := primer.WaitForCommit(t.Context(), ec, tx)
 	if err != nil {
 		t.Fatal(err)
 	}
-}
-
-func waitForCommit(ctx context.Context, ec *ethclient.Client, tx *types.Transaction) error {
-	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
-	defer cancel()
-
-	var err error
-
-	backoff := time.Duration(0)
-	iter := 0
-	step := 100
-
-	for pending := true; pending; {
-		_, pending, err = ec.TransactionByHash(ctx, tx.Hash())
-		if err != nil {
-			if !strings.Contains(err.Error(), "not found") {
-				return fmt.Errorf("waiting for tx %s to commit: %w", tx.Hash(), err)
-			}
-			pending = true
-		}
-
-		if pending {
-			if backoff == 0 {
-				runtime.Gosched()
-			} else {
-				time.Sleep(backoff)
-			}
-
-			iter++
-			if iter%step == 0 {
-				if backoff == 0 {
-					backoff = time.Millisecond
-				} else {
-					backoff *= 2
-				}
-			}
-		}
-	}
-
-	return nil
 }
 
 // decodeRawTransactionT decodes a raw Ethereum transaction and
