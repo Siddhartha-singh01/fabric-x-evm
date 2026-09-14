@@ -7,15 +7,12 @@ SPDX-License-Identifier: LGPL-3.0-or-later
 package core
 
 import (
-	"bytes"
 	"context"
-	crand "crypto/rand"
 	"fmt"
 	"log"
 	"math"
 	"math/big"
 	"sync"
-	"time"
 
 	"github.com/ethereum/go-ethereum"
 	"github.com/ethereum/go-ethereum/common"
@@ -27,12 +24,6 @@ import (
 	sdk "github.com/hyperledger/fabric-x-sdk"
 	"github.com/hyperledger/fabric-x-sdk/blocks"
 )
-
-// directiveCommitTimeout bounds how long SetBalance waits for the balance to land.
-const directiveCommitTimeout = 30 * time.Second
-
-// directivePollInterval is how often SetBalance polls the balance while waiting.
-const directivePollInterval = 50 * time.Millisecond
 
 type Signer interface {
 	Sign(msg []byte) ([]byte, error)
@@ -90,6 +81,7 @@ type Gateway struct {
 	ChainConfig     *params.ChainConfig
 	Signer          types.Signer
 	TxQueue         TxQueueInterface
+	nonceGate       NonceSequencer
 	workerCount     int
 	wg              sync.WaitGroup
 	stopOnce        sync.Once
@@ -113,9 +105,12 @@ type Store interface {
 
 // New creates a new Ethereum Gateway.
 // If txQueue is nil, NewTxQueue() will be used as the default.
+// If nonceGate is nil, the default nonce gate will be used: it parks future-nonce
+// transactions and releases them in nonce order as earlier nonces commit. The test
+// backend supplies a passthrough instead; production leaves it nil.
 // batchSubmitter handles all endorsement submissions and is owned by the Gateway.
 // endorsementChan is the channel to send endorsements to the BatchSubmitter.
-func New(ec *EndorsementClient, batchSubmitter *BatchSubmitter, store Store, chainID int64, workerCount int, txQueue TxQueueInterface, endorsementChan chan EndorsedTx) (*Gateway, error) {
+func New(ec *EndorsementClient, batchSubmitter *BatchSubmitter, store Store, chainID int64, workerCount int, txQueue TxQueueInterface, nonceGate NonceSequencer, endorsementChan chan EndorsedTx) (*Gateway, error) {
 	if workerCount <= 0 {
 		workerCount = 1
 	}
@@ -126,7 +121,7 @@ func New(ec *EndorsementClient, batchSubmitter *BatchSubmitter, store Store, cha
 	}
 
 	cid := big.NewInt(chainID)
-	return &Gateway{
+	g := &Gateway{
 		endorsers:       ec,
 		batchSubmitter:  batchSubmitter,
 		store:           store,
@@ -134,9 +129,16 @@ func New(ec *EndorsementClient, batchSubmitter *BatchSubmitter, store Store, cha
 		ChainConfig:     cmn.BuildChainConfig(chainID),
 		Signer:          types.LatestSignerForChainID(cid),
 		TxQueue:         txQueue,
+		nonceGate:       nonceGate,
 		workerCount:     workerCount,
 		endorsementChan: endorsementChan,
-	}, nil
+	}
+	// Use the default nonce gate if none provided. It needs the gateway itself, so
+	// it can only be built once g exists.
+	if g.nonceGate == nil {
+		g.nonceGate = newNonceGate(g, g.Signer, g.TxQueue)
+	}
+	return g, nil
 }
 
 // Start initializes the worker pool to process transactions from the queue
@@ -183,14 +185,14 @@ func (g *Gateway) processTx(ctx context.Context, tx *types.Transaction) error {
 // SendTransaction runs geth-style pre-flight validation, then enqueues the tx
 // for async endorse/submit. Mirrors eth_sendRawTransaction's failure model.
 func (g *Gateway) SendTransaction(ctx context.Context, tx *types.Transaction) error {
-	if err := ValidateTx(ctx, tx, g.ChainConfig, g.Signer, g); err != nil {
+	if err := ValidateTx(tx, g.ChainConfig, g.Signer); err != nil {
 		return err
 	}
-	if g.TxQueue.IsPending(tx.Hash()) != nil {
+	// Reject a resubmission already in the queue or parked awaiting an earlier nonce.
+	if g.TxQueue.IsPending(tx.Hash()) != nil || g.nonceGate.IsPending(tx.Hash()) != nil {
 		return domain.ErrTransactionAlreadyPending
 	}
-	g.TxQueue.Enqueue(tx)
-	return nil
+	return g.nonceGate.Admit(ctx, tx)
 }
 
 // CallContract is a query. It doesn't require a signature of the end user and doesn't change the ledger or nonce.
@@ -221,151 +223,6 @@ func (g *Gateway) SubmitFabricTx(ctx context.Context, hash common.Hash, end sdk.
 	case <-ctx.Done():
 		return fmt.Errorf("context canceled while sending endorsement: %w", ctx.Err())
 	}
-}
-
-// SetBalance submits a setBalance directive and blocks until the balance change is
-// observable. It deliberately bypasses ValidateTx/TxQueue (a directive is not a
-// user-signed EVM tx and would be rejected there), and since a directive leaves no
-// eth receipt, commit is observed by polling the target balance directly.
-func (g *Gateway) SetBalance(ctx context.Context, addr common.Address, amount *big.Int) error {
-	if got, err := g.BalanceAt(ctx, addr, nil); err == nil && got.Cmp(amount) == 0 {
-		return nil
-	}
-
-	end, err := g.endorsers.SetBalance(ctx, addr, amount)
-	if err != nil {
-		return fmt.Errorf("endorse setBalance: %w", err)
-	}
-
-	hash, err := newDirectiveTxHash()
-	if err != nil {
-		return fmt.Errorf("build directive tx hash: %w", err)
-	}
-
-	if err := g.SubmitFabricTx(ctx, hash, end); err != nil {
-		return err
-	}
-
-	waitCtx, cancel := context.WithTimeout(ctx, directiveCommitTimeout)
-	defer cancel()
-
-	ticker := time.NewTicker(directivePollInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-waitCtx.Done():
-			return fmt.Errorf("setBalance commit wait: %w", waitCtx.Err())
-		case <-ticker.C:
-			got, err := g.BalanceAt(waitCtx, addr, nil)
-			if err != nil {
-				// Transient read error while committing; keep polling until timeout.
-				continue
-			}
-			if got.Cmp(amount) == 0 {
-				return nil
-			}
-		}
-	}
-}
-
-// SetCode submits a setCode directive and blocks until the code change is
-// observable. Like SetBalance, it bypasses ValidateTx/TxQueue and commit is
-// observed by polling the target code directly.
-func (g *Gateway) SetCode(ctx context.Context, addr common.Address, code []byte) error {
-	if got, err := g.CodeAt(ctx, addr, nil); err == nil && bytes.Equal(got, code) {
-		return nil
-	}
-
-	end, err := g.endorsers.SetCode(ctx, addr, code)
-	if err != nil {
-		return fmt.Errorf("endorse setCode: %w", err)
-	}
-
-	hash, err := newDirectiveTxHash()
-	if err != nil {
-		return fmt.Errorf("build directive tx hash: %w", err)
-	}
-
-	if err := g.SubmitFabricTx(ctx, hash, end); err != nil {
-		return err
-	}
-
-	waitCtx, cancel := context.WithTimeout(ctx, directiveCommitTimeout)
-	defer cancel()
-
-	ticker := time.NewTicker(directivePollInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-waitCtx.Done():
-			return fmt.Errorf("setCode commit wait: %w", waitCtx.Err())
-		case <-ticker.C:
-			got, err := g.CodeAt(waitCtx, addr, nil)
-			if err != nil {
-				// Transient read error while committing; keep polling until timeout.
-				continue
-			}
-			if bytes.Equal(got, code) {
-				return nil
-			}
-		}
-	}
-}
-
-// SetStorageAt submits a setStorageAt directive and blocks until the storage change
-// is observable. Like SetBalance, it bypasses ValidateTx/TxQueue and commit is
-// observed by polling the target storage slot directly.
-func (g *Gateway) SetStorageAt(ctx context.Context, addr common.Address, key, value common.Hash) error {
-	if got, err := g.StorageAt(ctx, addr, key, nil); err == nil && common.BytesToHash(got) == value {
-		return nil
-	}
-
-	end, err := g.endorsers.SetStorageAt(ctx, addr, key, value)
-	if err != nil {
-		return fmt.Errorf("endorse setStorageAt: %w", err)
-	}
-
-	hash, err := newDirectiveTxHash()
-	if err != nil {
-		return fmt.Errorf("build directive tx hash: %w", err)
-	}
-
-	if err := g.SubmitFabricTx(ctx, hash, end); err != nil {
-		return err
-	}
-
-	waitCtx, cancel := context.WithTimeout(ctx, directiveCommitTimeout)
-	defer cancel()
-
-	ticker := time.NewTicker(directivePollInterval)
-	defer ticker.Stop()
-
-	for {
-		select {
-		case <-waitCtx.Done():
-			return fmt.Errorf("setStorageAt commit wait: %w", waitCtx.Err())
-		case <-ticker.C:
-			got, err := g.StorageAt(waitCtx, addr, key, nil)
-			if err != nil {
-				// Transient read error while committing; keep polling until timeout.
-				continue
-			}
-			if common.BytesToHash(got) == value {
-				return nil
-			}
-		}
-	}
-}
-
-// newDirectiveTxHash returns a unique hash to track a directive through SubmitFabricTx.
-func newDirectiveTxHash() (common.Hash, error) {
-	var h common.Hash
-	if _, err := crand.Read(h[:]); err != nil {
-		return common.Hash{}, err
-	}
-	return h, nil
 }
 
 // ChainID returns the configured chainID for this deployment.
@@ -456,8 +313,13 @@ func (g *Gateway) NonceAt(ctx context.Context, account common.Address, blockNumb
 //
 // The pending status is signaled by BlockNumber=0, which the API layer converts to null.
 func (g *Gateway) TransactionByHash(ctx context.Context, hash common.Hash) (*domain.Transaction, error) {
-	// Check if transaction is pending in the queue (either waiting or being processed)
-	if pendingTx := g.TxQueue.IsPending(hash); pendingTx != nil {
+	// Check if transaction is pending in the queue (either waiting or being
+	// processed) or parked awaiting an earlier nonce.
+	pendingTx := g.TxQueue.IsPending(hash)
+	if pendingTx == nil {
+		pendingTx = g.nonceGate.IsPending(hash)
+	}
+	if pendingTx != nil {
 		// Transaction is pending - return it with zero block fields
 		// The API layer will convert these to nil in the JSON response
 		rawTx, err := pendingTx.MarshalBinary()
@@ -557,6 +419,7 @@ func (g *Gateway) Stop() error {
 func (g *Gateway) Handle(ctx context.Context, b blocks.Block) error {
 	// Convert blocks.Block to domain.Block using the shared conversion function
 	domainBlock := ConvertToDomain(b)
-	err := g.TxQueue.Handle(ctx, &domainBlock)
-	return err
+	// Release parked work first, then let the queue feed workers.
+	g.nonceGate.Observe(domainBlock.Transactions)
+	return g.TxQueue.Handle(ctx, &domainBlock)
 }
