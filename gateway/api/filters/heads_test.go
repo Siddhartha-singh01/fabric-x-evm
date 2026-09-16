@@ -80,7 +80,7 @@ func TestSubscribeHeads_Backpressure(t *testing.T) {
 	_ = api.SubscribeHeads(1)
 	_ = api.Handle(context.Background(), testBlock(1, 1))
 
-	for i := 0; i < 32; i++ {
+	for i := range 32 {
 		start := time.Now()
 		if err := api.Handle(context.Background(), testBlock(uint64(i+2), byte(i))); err != nil {
 			t.Fatal(err)

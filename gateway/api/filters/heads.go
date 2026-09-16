@@ -8,6 +8,7 @@ package filters
 
 import (
 	"context"
+	"time"
 
 	"github.com/hyperledger/fabric-x-evm/gateway/domain"
 	"github.com/hyperledger/fabric-x-sdk/blocks"
@@ -115,4 +116,32 @@ func (api *FilterAPI) domainBlockFor(ctx context.Context, b blocks.Block) *domai
 		ParentHash:  b.ParentHash,
 		Timestamp:   b.Timestamp,
 	}
+}
+
+// BlockForHead returns a stored block for newHeads payloads. When FilterAPI runs
+// before chain on the commit path, the first lookup can miss; retry briefly so
+// subscribers still get stateRoot once InsertBlock has finished.
+func (api *FilterAPI) BlockForHead(ctx context.Context, b *domain.Block) *domain.Block {
+	if b == nil {
+		return nil
+	}
+	if len(b.StateRoot) > 0 {
+		return b
+	}
+	bq, ok := api.logs.(BlockQuerier)
+	if !ok {
+		return b
+	}
+	for range 20 {
+		db, err := bq.GetBlockByNumber(ctx, b.BlockNumber, false)
+		if err == nil && db != nil && len(db.StateRoot) > 0 {
+			return db
+		}
+		select {
+		case <-ctx.Done():
+			return b
+		case <-time.After(5 * time.Millisecond):
+		}
+	}
+	return b
 }
