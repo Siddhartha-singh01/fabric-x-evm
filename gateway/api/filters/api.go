@@ -250,7 +250,7 @@ func (api *FilterAPI) GetFilterChanges(id rpc.ID) (any, error) {
 		return []any{}, errFilterNotFound
 	}
 	if !api.resetDeadlineLocked(id, f) {
-		return []interface{}{}, errFilterNotFound
+		return []any{}, errFilterNotFound
 	}
 
 	switch f.typ {
