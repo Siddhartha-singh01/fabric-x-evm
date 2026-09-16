@@ -55,8 +55,7 @@ func TestConvertToDomain_ValidTx(t *testing.T) {
 		Transactions: []blocks.Transaction{{
 			ID:        "tx-1",
 			Number:    0,
-			Valid:     true,
-			Status:    0,
+			Status:    blocks.StatusCommitted,
 			InputArgs: [][]byte{{byte(co.ProposalTypeEVMTx)}, ethb},
 		}},
 	}
@@ -70,7 +69,7 @@ func TestConvertToDomain_ValidTx(t *testing.T) {
 	require.Len(t, got.Transactions, 1)
 	assert.Equal(t, uint8(1), got.Transactions[0].Status)
 	assert.Equal(t, "tx-1", got.Transactions[0].FabricTxID)
-	assert.True(t, got.Transactions[0].FabricValid)
+	assert.Equal(t, blocks.StatusCommitted, got.Transactions[0].FabricTxStatus)
 }
 
 func TestConvertToDomain_InvalidTxStatus(t *testing.T) {
@@ -83,7 +82,7 @@ func TestConvertToDomain_InvalidTxStatus(t *testing.T) {
 		Number: 1,
 		Transactions: []blocks.Transaction{{
 			ID:        "tx-bad",
-			Valid:     false, // invalid tx
+			Status:    blocks.StatusMVCCConflict, // invalid tx
 			InputArgs: [][]byte{{byte(co.ProposalTypeEVMTx)}, ethb},
 		}},
 	}
@@ -92,7 +91,7 @@ func TestConvertToDomain_InvalidTxStatus(t *testing.T) {
 
 	require.Len(t, got.Transactions, 1)
 	assert.Equal(t, uint8(0), got.Transactions[0].Status)
-	assert.False(t, got.Transactions[0].FabricValid)
+	assert.Equal(t, blocks.StatusMVCCConflict, got.Transactions[0].FabricTxStatus)
 }
 
 // A Fabric-invalid tx can still carry events recorded during endorsement-time
@@ -116,7 +115,7 @@ func TestConvertToDomain_InvalidTxDropsLogs(t *testing.T) {
 		Number: 1,
 		Transactions: []blocks.Transaction{{
 			ID:        "tx-bad",
-			Valid:     false, // invalid tx, but events survive from simulation
+			Status:    blocks.StatusMVCCConflict, // invalid tx, but events survive from simulation
 			Events:    events,
 			InputArgs: [][]byte{{byte(co.ProposalTypeEVMTx)}, ethb},
 		}},
@@ -133,8 +132,8 @@ func TestConvertToDomain_SkipsInsufficientInputArgs(t *testing.T) {
 	b := blocks.Block{
 		Number: 1,
 		Transactions: []blocks.Transaction{
-			{ID: "tx-no-args", Valid: true, InputArgs: nil},
-			{ID: "tx-one-arg", Valid: true, InputArgs: [][]byte{[]byte("only-one")}},
+			{ID: "tx-no-args", Status: blocks.StatusCommitted, InputArgs: nil},
+			{ID: "tx-one-arg", Status: blocks.StatusCommitted, InputArgs: [][]byte{[]byte("only-one")}},
 		},
 	}
 
@@ -148,7 +147,7 @@ func TestConvertToDomain_SkipsInvalidEthBytes(t *testing.T) {
 		Number: 1,
 		Transactions: []blocks.Transaction{{
 			ID:        "tx-bad-bytes",
-			Valid:     true,
+			Status:    blocks.StatusCommitted,
 			InputArgs: [][]byte{nil, []byte("not-an-eth-tx")},
 		}},
 	}
@@ -177,7 +176,7 @@ func TestConvertTransaction_RegularTransfer(t *testing.T) {
 	ethb, _ := ethTx.MarshalBinary()
 
 	logIndex := int64(0)
-	domainTx, err := convertTransaction(ethb, []byte("block-hash"), 42, 5, "fabric-tx-123", 1, 0, true, nil, &logIndex)
+	domainTx, err := convertTransaction(ethb, []byte("block-hash"), 42, 5, "fabric-tx-123", 1, blocks.StatusCommitted, nil, &logIndex)
 
 	require.NoError(t, err)
 	assert.Equal(t, ethTx.Hash().Bytes(), domainTx.TxHash)
@@ -188,8 +187,7 @@ func TestConvertTransaction_RegularTransfer(t *testing.T) {
 	assert.Nil(t, domainTx.ContractAddress)
 	assert.Equal(t, "fabric-tx-123", domainTx.FabricTxID)
 	assert.Equal(t, uint8(1), domainTx.Status)
-	assert.Equal(t, 0, domainTx.FabricTxStatus)
-	assert.True(t, domainTx.FabricValid)
+	assert.Equal(t, blocks.StatusCommitted, domainTx.FabricTxStatus)
 	assert.NotNil(t, domainTx.FromAddress)
 	assert.NotNil(t, domainTx.RawTx)
 }
@@ -205,7 +203,7 @@ func TestConvertTransaction_ContractCreation(t *testing.T) {
 	ethb, _ := signed.MarshalBinary()
 
 	logIndex := int64(0)
-	domainTx, err := convertTransaction(ethb, []byte("block-hash"), 42, 3, "fabric-tx-456", 1, 0, true, nil, &logIndex)
+	domainTx, err := convertTransaction(ethb, []byte("block-hash"), 42, 3, "fabric-tx-456", 1, blocks.StatusCommitted, nil, &logIndex)
 
 	require.NoError(t, err)
 	assert.Nil(t, domainTx.ToAddress)
@@ -222,39 +220,46 @@ func TestConvertTransaction_InvalidSignature(t *testing.T) {
 	ethb, _ := ethTx.MarshalBinary()
 
 	logIndex := int64(0)
-	_, err := convertTransaction(ethb, []byte("block-hash"), 42, 1, "fabric-tx-789", 1, 0, true, nil, &logIndex)
+	_, err := convertTransaction(ethb, []byte("block-hash"), 42, 1, "fabric-tx-789", 1, blocks.StatusCommitted, nil, &logIndex)
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "invalid sender")
 }
 
-func TestConvertTransaction_ValidationCodes(t *testing.T) {
+// TestConvertTransaction_FabricStatuses checks that the commit status is carried
+// through to the domain row independently of the EVM receipt status, which the two
+// valid cases below distinguish: a revert commits on Fabric while reporting an EVM
+// status of 0. The statuses are blocks.Status values, the SDK's protocol-neutral enum
+// shared by both delivery paths, rather than ledger-specific validation codes.
+func TestConvertTransaction_FabricStatuses(t *testing.T) {
 	key, err := crypto.GenerateKey()
 	require.NoError(t, err)
 
 	ethb := marshaledEthTx(t, key, common.HexToAddress("0x1234567890123456789012345678901234567890"), big.NewInt(100))
 
 	tests := []struct {
-		name           string
-		ethStatus      uint8
-		validationCode int
-		fabricValid    bool
+		name         string
+		ethStatus    uint8
+		fabricStatus blocks.Status
+		wantValid    bool
 	}{
-		{"valid", 1, 0, true},
+		{"committed", 1, blocks.StatusCommitted, true},
 		// A revert is Fabric-valid even though its EVM status is 0.
-		{"revert", 0, 0, true},
-		{"mvcc_conflict", 0, 11, false},
-		{"endorsement_failure", 0, 8, false},
+		{"revert", 0, blocks.StatusCommitted, true},
+		{"mvcc_conflict", 0, blocks.StatusMVCCConflict, false},
+		{"endorsement_failure", 0, blocks.StatusEndorsementPolicyFailure, false},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			logIndex := int64(0)
-			domainTx, err := convertTransaction(ethb, []byte("bh"), 42, 1, "tx", tt.ethStatus, tt.validationCode, tt.fabricValid, nil, &logIndex)
+			domainTx, err := convertTransaction(ethb, []byte("bh"), 42, 1, "tx", tt.ethStatus, tt.fabricStatus, nil, &logIndex)
 			require.NoError(t, err)
 			assert.Equal(t, tt.ethStatus, domainTx.Status)
-			assert.Equal(t, tt.validationCode, domainTx.FabricTxStatus)
-			assert.Equal(t, tt.fabricValid, domainTx.FabricValid)
+			assert.Equal(t, tt.fabricStatus, domainTx.FabricTxStatus)
+			// The status is the only record of a Fabric-valid commit: no separate
+			// boolean rides alongside it that could disagree.
+			assert.Equal(t, tt.wantValid, domainTx.FabricTxStatus.Valid())
 		})
 	}
 }
