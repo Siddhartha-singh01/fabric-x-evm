@@ -114,13 +114,7 @@ func (api *FilterAPI) timeoutLoop() {
 	defer api.wg.Done()
 	// Sweep more often than the filter timeout so expired filters are removed
 	// close to their deadline instead of lingering for almost another full period.
-	sweep := api.timeout / 3
-	if sweep < time.Second {
-		sweep = time.Second
-	}
-	if sweep > time.Minute {
-		sweep = time.Minute
-	}
+	sweep := min(max(api.timeout/3, time.Second), time.Minute)
 	ticker := time.NewTicker(sweep)
 	defer ticker.Stop()
 	for {

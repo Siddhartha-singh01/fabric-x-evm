@@ -8,6 +8,7 @@ package domain
 
 import (
 	"github.com/ethereum/go-ethereum/core/types"
+	"github.com/hyperledger/fabric-x-sdk/blocks"
 )
 
 type Block struct {
@@ -30,9 +31,12 @@ type Transaction struct {
 	ContractAddress []byte
 	Status          uint8 // EVM receipt status: 1 is success, 0 is a revert or an invalid tx
 	FabricTxID      string
-	FabricTxStatus  int   // from the SDK Transaction.Status, which is currently never set
-	FabricValid     bool  // Fabric-valid commit: the nonce was consumed, reverts included
-	Logs            []Log // populated for receipt queries
+	// FabricTxStatus is the SDK's protocol-neutral commit status, populated by both
+	// the delivery and the notification path. StatusCommitted is the only status a
+	// nonce is consumed for, reverts included, so FabricTxStatus.Valid() is the one
+	// test for a Fabric-valid commit.
+	FabricTxStatus blocks.Status
+	Logs           []Log // populated for receipt queries
 }
 
 // ToEthTx converts a domain Transaction to an ethereum types.Transaction.
