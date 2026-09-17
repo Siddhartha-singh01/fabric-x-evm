@@ -10,6 +10,7 @@ import (
 	"context"
 	"errors"
 	"testing"
+	"time"
 
 	gethfilters "github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/hyperledger/fabric-x-evm/gateway/api/rpcerr"
@@ -53,6 +54,31 @@ func TestFilterCap_DefaultAllowsNormalUse(t *testing.T) {
 	}
 	if _, err := api.NewFilter(context.Background(), gethfilters.FilterCriteria{}); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestFilterCap_ExpiryFreesSlot(t *testing.T) {
+	api := NewFilterAPIWithTimeoutAndLimits(nil, 40*time.Millisecond, Limits{MaxFilters: 1})
+	t.Cleanup(api.Close)
+
+	_ = mustNewBlockFilter(t, api)
+	if _, err := api.NewBlockFilter(context.Background()); err == nil {
+		t.Fatal("expected cap while filter live")
+	}
+
+	deadline := time.Now().Add(3 * time.Second)
+	for time.Now().Before(deadline) {
+		api.mu.Lock()
+		n := len(api.filters)
+		api.mu.Unlock()
+		if n == 0 {
+			break
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+
+	if _, err := api.NewBlockFilter(context.Background()); err != nil {
+		t.Fatalf("slot should free after expiry: %v", err)
 	}
 }
 

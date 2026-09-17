@@ -61,8 +61,8 @@ func (api *FilterAPI) SubscribeHeads(buffer int) (*HeadSubscription, error) {
 }
 
 // SubscribeHeadsForConn registers a buffered newHeads consumer attributed to
-// conn (typically the per-connection rpc.Notifier). After Close the returned
-// channel is already closed.
+// conn (stable per WS socket; callers should pass PeerInfo-based keys, not a
+// per-call Notifier pointer). After Close the returned channel is already closed.
 func (api *FilterAPI) SubscribeHeadsForConn(conn any, buffer int) (*HeadSubscription, error) {
 	if buffer < 1 {
 		buffer = HeadsBuffer
