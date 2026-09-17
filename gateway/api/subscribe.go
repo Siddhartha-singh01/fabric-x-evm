@@ -37,7 +37,6 @@ func (h *HeadsAPI) NewHeads(ctx context.Context) (*rpc.Subscription, error) {
 	}
 
 	rpcSub := notifier.CreateSubscription()
-
 	go func() {
 		defer feedSub.Unsubscribe()
 		for {
