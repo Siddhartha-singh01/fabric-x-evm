@@ -218,7 +218,16 @@ func buildApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, logge
 		return nil, err
 	}
 
-	filterAPI := filters.NewFilterAPI(gateway)
+	var filterLimits filters.Limits
+	if cfg.Gateway != nil && cfg.Gateway.Filters != nil {
+		mf, mspc, msg := cfg.Gateway.Filters.Limits()
+		filterLimits = filters.Limits{
+			MaxFilters:              mf,
+			MaxSubscriptionsPerConn: mspc,
+			MaxSubscriptionsGlobal:  msg,
+		}
+	}
+	filterAPI := filters.NewFilterAPIWithLimits(gateway, filterLimits)
 	ok := false
 	defer func() {
 		if !ok {
