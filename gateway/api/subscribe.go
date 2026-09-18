@@ -45,7 +45,6 @@ func (h *HeadsAPI) NewHeads(ctx context.Context) (*rpc.Subscription, error) {
 				if !ok {
 					return
 				}
-				b = h.filters.BlockForHead(context.Background(), b)
 				if err := notifier.Notify(rpcSub.ID, headPayload(b)); err != nil {
 					return
 				}

@@ -10,6 +10,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/ethereum/go-ethereum/rpc"
@@ -236,10 +237,8 @@ func buildApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, logge
 	}()
 
 	// Chain must be called before gateway, to persist blocks before marking transactions complete.
-	// Keep FilterAPI before chain (same order as main) so commit-path behavior stays
-	// identical for Hardhat/OZ. newHeads loads the stored header in the subscriber
-	// path with a short retry once chain has persisted the block.
-	handlers := append(extraHandlers, filterAPI, chain, gateway)
+	// FilterAPI runs after chain so newHeads can load the stored block (stateRoot etc.).
+	handlers := append(extraHandlers, chain, filterAPI, gateway)
 	syncer, err := synchronizer.New(cfg.Network.Protocol, chain, cfg.Network.Channel, cfg.Network.Namespace, cfg.Committer.ToPeerConf(), gwSigner, logger, handlers...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create synchronizer: %w", err)
@@ -337,7 +336,11 @@ func (a *App) Run(ctx context.Context) error {
 	a.gateway.Start(gctx)
 
 	// Create HTTP server before starting goroutine so Shutdown can safely read a.httpServer
-	a.httpServer = api.NewHTTPServer(a.rpcServer, a.cfg.Gateway.Listen)
+	vhosts := a.cfg.Gateway.VHosts()
+	if slices.Contains(vhosts, "*") {
+		appLogger.Warn("gateway.vhosts includes \"*\": JSON-RPC server accepts any Host header (DNS-rebinding protection disabled)")
+	}
+	a.httpServer = api.NewHTTPServer(a.rpcServer, a.cfg.Gateway.Listen, vhosts)
 	g.Go(func() error {
 		if err := a.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			return err
