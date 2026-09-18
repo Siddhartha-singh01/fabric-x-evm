@@ -8,9 +8,9 @@ package app
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
+	"slices"
 	"time"
 
 	"github.com/ethereum/go-ethereum/rpc"
@@ -36,6 +36,7 @@ import (
 	"github.com/hyperledger/fabric-x-evm/gateway/storage"
 	"github.com/hyperledger/fabric-x-evm/gateway/testimpl"
 	"github.com/hyperledger/fabric-x-evm/gateway/testimpl/primer"
+	"github.com/hyperledger/fabric-x-evm/synchronizer"
 )
 
 var appLogger = flogging.MustGetLogger("gateway.app")
@@ -44,7 +45,7 @@ var appLogger = flogging.MustGetLogger("gateway.app")
 type App struct {
 	cfg           config.Config
 	endorserConns []*eclient.Client // set only in split deployment; closed on Shutdown
-	synchronizer  Synchronizer
+	synchronizer  synchronizer.Synchronizer
 	gateway       *core.Gateway
 	chain         *core.Chain
 	filterAPI     *filters.FilterAPI
@@ -91,7 +92,7 @@ func NewTestNodeWithConfig(ctx context.Context, cfg config.Config, testAccountsP
 }
 
 func newApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, enableTestRPC bool, testAccountsPath string) (*App, error) {
-	logger := sdk.NewStdLogger("gateway")
+	logger := flogging.MustGetLogger("gateway")
 
 	if len(cfg.Gateway.Endorsers) > 0 {
 		if enableTestRPC {
@@ -104,13 +105,6 @@ func newApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, enableT
 		return nil, fmt.Errorf("one of endorser or gateway.endorsers is required")
 	}
 	ecfg := *cfg.Endorser
-	// Test RPC needs a large sequential history window (see testnode); production
-	// only needs a couple of snapshots for the synchronizer.
-	if enableTestRPC {
-		ecfg.Database.HistorySize = 16384
-	} else if ecfg.Database.HistorySize == 0 {
-		ecfg.Database.HistorySize = 2
-	}
 	eSigner, err := identity.SignerFromMSP(ecfg.Identity.MSPDir, ecfg.Identity.MspID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create signer: %w", err)
@@ -236,7 +230,7 @@ func buildApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, logge
 	// Chain must be called before gateway, to persist blocks before marking transactions complete.
 	// FilterAPI runs after chain so newHeads can load the stored block (stateRoot etc.).
 	handlers := append(extraHandlers, chain, filterAPI, gateway)
-	synchronizer, err := NewSynchronizer(cfg.Network.Protocol, chain, cfg.Network.Channel, cfg.Network.Namespace, cfg.Committer.ToPeerConf(), gwSigner, logger, handlers...)
+	syncer, err := synchronizer.New(cfg.Network.Protocol, chain, cfg.Network.Channel, cfg.Network.Namespace, cfg.Committer.ToPeerConf(), gwSigner, logger, handlers...)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create synchronizer: %w", err)
 	}
@@ -306,7 +300,7 @@ func buildApp(ctx context.Context, cfg config.Config, gwSigner sdk.Signer, logge
 	ok = true
 	return &App{
 		cfg:          cfg,
-		synchronizer: synchronizer,
+		synchronizer: syncer,
 		gateway:      gateway,
 		chain:        chain,
 		filterAPI:    filterAPI,
@@ -324,7 +318,7 @@ func (a *App) Run(ctx context.Context) error {
 	g.Go(func() error { return a.synchronizer.Start(gctx) })
 
 	// Wait for initial sync before serving traffic
-	if err := WaitUntilSynced(gctx, a.synchronizer, a.cfg.Synchronizer.SyncTimeout()); err != nil {
+	if err := synchronizer.WaitUntilSynced(gctx, a.synchronizer, a.cfg.Synchronizer.SyncTimeout()); err != nil {
 		return err
 	}
 
@@ -333,7 +327,11 @@ func (a *App) Run(ctx context.Context) error {
 	a.gateway.Start(gctx)
 
 	// Create HTTP server before starting goroutine so Shutdown can safely read a.httpServer
-	a.httpServer = api.NewHTTPServer(a.rpcServer, a.cfg.Gateway.Listen)
+	vhosts := a.cfg.Gateway.VHosts()
+	if slices.Contains(vhosts, "*") {
+		appLogger.Warn("gateway.vhosts includes \"*\": JSON-RPC server accepts any Host header (DNS-rebinding protection disabled)")
+	}
+	a.httpServer = api.NewHTTPServer(a.rpcServer, a.cfg.Gateway.Listen, vhosts)
 	g.Go(func() error {
 		if err := a.httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			return err
@@ -395,23 +393,5 @@ func (a *App) Shutdown() error {
 	}
 
 	appLogger.Debug("graceful shutdown complete")
-	return nil
-}
-
-// WaitUntilSynced blocks until sync reports Ready or timeout elapses, polling every 100ms.
-func WaitUntilSynced(ctx context.Context, sync Synchronizer, timeout time.Duration) error {
-	ctx, cancel := context.WithTimeout(ctx, timeout)
-	defer cancel()
-
-	for {
-		if err := sync.Ready(); err == nil {
-			break
-		}
-		select {
-		case <-ctx.Done():
-			return errors.New("timeout waiting for sync")
-		case <-time.After(100 * time.Millisecond):
-		}
-	}
 	return nil
 }
