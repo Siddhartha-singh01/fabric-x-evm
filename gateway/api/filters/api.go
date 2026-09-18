@@ -135,12 +135,13 @@ func (api *FilterAPI) timeoutLoop() {
 }
 
 // Handle implements blocks.BlockHandler. It updates every installed filter
-// and fans out to newHeads subscribers under the API lock before returning.
+// under the API lock, then loads the stored block for newHeads without holding
+// the lock (DB I/O) before fanning out.
 func (api *FilterAPI) Handle(ctx context.Context, b blocks.Block) error {
 	api.mu.Lock()
-	defer api.mu.Unlock()
 
 	if len(api.filters) == 0 && len(api.headSubs) == 0 {
+		api.mu.Unlock()
 		return nil
 	}
 
@@ -161,9 +162,20 @@ func (api *FilterAPI) Handle(ctx context.Context, b blocks.Block) error {
 			api.deliverOneLocked(id, b, hash, blockLogs)
 		}
 	}
-	if len(api.headSubs) > 0 {
-		api.fanOutHeads(api.domainBlockFor(ctx, b))
+
+	needHeads := len(api.headSubs) > 0
+	api.mu.Unlock()
+
+	if !needHeads {
+		return nil
 	}
+
+	// FilterAPI is registered after chain, so the block is already persisted.
+	block := api.domainBlockFor(ctx, b)
+
+	api.mu.Lock()
+	api.fanOutHeads(block)
+	api.mu.Unlock()
 	return nil
 }
 

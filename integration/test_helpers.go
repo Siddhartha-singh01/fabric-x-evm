@@ -194,7 +194,7 @@ func defaultHandlerChain(t *testing.T, ctx context.Context, cfg config.Config, e
 	for _, db := range dbs {
 		handlers = append(handlers, db)
 	}
-	handlers = append(handlers, filterAPI, chain, gw)
+	handlers = append(handlers, chain, filterAPI, gw)
 	return gw, handlers, chain
 }
 
