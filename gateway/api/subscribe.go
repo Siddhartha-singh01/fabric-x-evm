@@ -31,7 +31,7 @@ func (h *HeadsAPI) NewHeads(ctx context.Context) (*rpc.Subscription, error) {
 		return &rpc.Subscription{}, rpc.ErrNotificationsUnsupported
 	}
 
-	feedSub, err := h.filters.SubscribeHeadsForConn(subscriptionConnKey(ctx, notifier), filters.HeadsBuffer)
+	feedSub, err := h.filters.SubscribeHeadsForConn(subscriptionConnKey(ctx), filters.HeadsBuffer)
 	if err != nil {
 		return &rpc.Subscription{}, err
 	}
@@ -65,12 +65,14 @@ func headPayload(b *domain.Block) any {
 }
 
 // subscriptionConnKey attributes a newHeads subscription to a WS connection.
-// PeerInfo.RemoteAddr is stable across eth_subscribe calls on the same socket;
-// the Notifier pointer is not (a new one is created per subscribe call).
-func subscriptionConnKey(ctx context.Context, notifier *rpc.Notifier) any {
+// PeerInfo.RemoteAddr is stable across eth_subscribe calls on the same socket.
+// When it is empty we return nil so only the global subscription cap applies
+// (falling back to *rpc.Notifier would bypass the per-connection cap, since a
+// new notifier is created per eth_subscribe call).
+func subscriptionConnKey(ctx context.Context) any {
 	info := rpc.PeerInfoFromContext(ctx)
-	if info.RemoteAddr != "" {
-		return info.Transport + "|" + info.RemoteAddr
+	if info.RemoteAddr == "" {
+		return nil
 	}
-	return notifier
+	return info.Transport + "|" + info.RemoteAddr
 }

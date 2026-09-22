@@ -105,10 +105,10 @@ func bytes32(b byte) []byte {
 
 func TestNewHeads_PerConnectionCap(t *testing.T) {
 	backend := &stubBackend{chainID: big.NewInt(4011), blockNum: 1}
-	filterAPI := filters.NewFilterAPIWithLimits(backend, filters.Limits{
-		MaxSubscriptionsPerConn: 1,
-		MaxSubscriptionsGlobal:  10,
-	})
+	limits := filters.DefaultLimits
+	limits.MaxSubscriptionsPerConn = 1
+	limits.MaxSubscriptionsGlobal = 10
+	filterAPI := filters.NewFilterAPIWithLimits(backend, limits)
 	t.Cleanup(filterAPI.Close)
 
 	srv, err := NewServer(backend, filterAPI)

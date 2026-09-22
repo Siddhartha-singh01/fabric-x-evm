@@ -12,12 +12,19 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ethereum/go-ethereum/common"
 	gethfilters "github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/hyperledger/fabric-x-evm/gateway/api/rpcerr"
 )
 
+func limitsWith(mutate func(*Limits)) Limits {
+	l := DefaultLimits
+	mutate(&l)
+	return l
+}
+
 func TestFilterCap_GlobalConcurrent(t *testing.T) {
-	api := NewFilterAPIWithLimits(nil, Limits{MaxFilters: 2})
+	api := NewFilterAPIWithLimits(nil, limitsWith(func(l *Limits) { l.MaxFilters = 2 }))
 	t.Cleanup(api.Close)
 
 	id1 := mustNewBlockFilter(t, api)
@@ -58,7 +65,7 @@ func TestFilterCap_DefaultAllowsNormalUse(t *testing.T) {
 }
 
 func TestFilterCap_ExpiryFreesSlot(t *testing.T) {
-	api := NewFilterAPIWithTimeoutAndLimits(nil, 40*time.Millisecond, Limits{MaxFilters: 1})
+	api := NewFilterAPIWithTimeoutAndLimits(nil, 40*time.Millisecond, limitsWith(func(l *Limits) { l.MaxFilters = 1 }))
 	t.Cleanup(api.Close)
 
 	_ = mustNewBlockFilter(t, api)
@@ -82,11 +89,50 @@ func TestFilterCap_ExpiryFreesSlot(t *testing.T) {
 	}
 }
 
-func TestSubscriptionCap_PerConnection(t *testing.T) {
+func TestFilterCap_ZeroMeansZero(t *testing.T) {
 	api := NewFilterAPIWithLimits(nil, Limits{
-		MaxSubscriptionsPerConn: 1,
-		MaxSubscriptionsGlobal:  10,
+		MaxFilters:              0,
+		MaxSubscriptionsPerConn: DefaultLimits.MaxSubscriptionsPerConn,
+		MaxSubscriptionsGlobal:  DefaultLimits.MaxSubscriptionsGlobal,
+		MaxFilterBuffer:         DefaultLimits.MaxFilterBuffer,
 	})
+	t.Cleanup(api.Close)
+	if _, err := api.NewBlockFilter(context.Background()); err == nil {
+		t.Fatal("MaxFilters=0 should reject new filters")
+	}
+}
+
+func TestFilterBuffer_DropsOldest(t *testing.T) {
+	api := NewFilterAPIWithLimits(nil, limitsWith(func(l *Limits) { l.MaxFilterBuffer = 2 }))
+	t.Cleanup(api.Close)
+
+	id := mustNewBlockFilter(t, api)
+	for i := byte(1); i <= 4; i++ {
+		if err := api.Handle(context.Background(), testBlock(uint64(i), i)); err != nil {
+			t.Fatal(err)
+		}
+	}
+	got, err := api.GetFilterChanges(id)
+	if err != nil {
+		t.Fatal(err)
+	}
+	hashes, ok := got.([]common.Hash)
+	if !ok {
+		t.Fatalf("got %T", got)
+	}
+	if len(hashes) != 2 {
+		t.Fatalf("len=%d, want 2 (oldest dropped)", len(hashes))
+	}
+	if hashes[0][31] != 3 || hashes[1][31] != 4 {
+		t.Fatalf("hashes=%v, want last two (3,4)", hashes)
+	}
+}
+
+func TestSubscriptionCap_PerConnection(t *testing.T) {
+	api := NewFilterAPIWithLimits(nil, limitsWith(func(l *Limits) {
+		l.MaxSubscriptionsPerConn = 1
+		l.MaxSubscriptionsGlobal = 10
+	}))
 	t.Cleanup(api.Close)
 
 	connA := &struct{ name string }{"a"}
@@ -120,10 +166,10 @@ func TestSubscriptionCap_PerConnection(t *testing.T) {
 }
 
 func TestSubscriptionCap_Global(t *testing.T) {
-	api := NewFilterAPIWithLimits(nil, Limits{
-		MaxSubscriptionsPerConn: 5,
-		MaxSubscriptionsGlobal:  2,
-	})
+	api := NewFilterAPIWithLimits(nil, limitsWith(func(l *Limits) {
+		l.MaxSubscriptionsPerConn = 5
+		l.MaxSubscriptionsGlobal = 2
+	}))
 	t.Cleanup(api.Close)
 
 	if _, err := api.SubscribeHeadsForConn("c1", 1); err != nil {

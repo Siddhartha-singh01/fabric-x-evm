@@ -97,7 +97,7 @@ func newFilterAPI(logs LogQuerier, timeout time.Duration, limits Limits) *Filter
 	api := &FilterAPI{
 		logs:     logs,
 		timeout:  timeout,
-		limits:   limits.withDefaults(),
+		limits:   mergePartialLimits(limits),
 		filters:  make(map[rpc.ID]*filter),
 		headSubs: make(map[uint64]*headSub),
 		connSubs: make(map[any]int),
@@ -209,15 +209,27 @@ func (api *FilterAPI) deliverOneLocked(id rpc.ID, b blocks.Block, hash common.Ha
 		f.testDeliver(b)
 		return
 	}
+	capN := api.limits.MaxFilterBuffer
 	switch f.typ {
 	case BlocksSubscription:
-		f.hashes = append(f.hashes, hash)
+		f.hashes = appendCapped(f.hashes, []common.Hash{hash}, capN)
 	case LogsSubscription:
 		matched := matchLogs(blockLogs, f.crit)
 		if len(matched) > 0 {
-			f.logs = append(f.logs, matched...)
+			f.logs = appendCapped(f.logs, matched, capN)
 		}
 	}
+}
+
+// appendCapped appends items then drops the oldest entries if len exceeds max.
+// max <= 0 leaves the buffer unchanged aside from the append (caller should
+// pass a positive MaxFilterBuffer via mergePartialLimits).
+func appendCapped[T any](buf []T, items []T, max int) []T {
+	buf = append(buf, items...)
+	if max > 0 && len(buf) > max {
+		buf = append([]T(nil), buf[len(buf)-max:]...)
+	}
+	return buf
 }
 
 func (api *FilterAPI) install(typ Type, crit gethfilters.FilterCriteria) (rpc.ID, error) {

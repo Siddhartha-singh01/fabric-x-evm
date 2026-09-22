@@ -118,28 +118,40 @@ type Gateway struct {
 	SubmitterCount      int `mapstructure:"submitter-count" yaml:"submitter-count"`
 	EndorsementChanSize int `mapstructure:"endorsement-chan-size"  yaml:"endorsement-chan-size"`
 
-	// Filters caps eth_*Filter and eth_subscribe resource use. Nil or zero
-	// fields use package defaults (see filters.DefaultLimits).
+	// Filters caps eth_*Filter and eth_subscribe resource use. Nil means
+	// package defaults. Pointer fields distinguish omitted (nil → default)
+	// from an explicit 0 (allow none).
 	Filters *Filters `mapstructure:"filters" yaml:"filters"`
 }
 
 // Filters configures server-side filter and subscription resource caps.
+// Pointer fields: nil = omitted (use default), non-nil 0 = actually zero.
 type Filters struct {
 	// MaxFilters is the global concurrent cap on eth_newBlockFilter + eth_newFilter.
-	MaxFilters int `mapstructure:"max-filters" yaml:"max-filters"`
+	MaxFilters *int `mapstructure:"max-filters" yaml:"max-filters"`
 	// MaxSubscriptionsPerConnection caps eth_subscribe("newHeads") per WS connection.
-	MaxSubscriptionsPerConnection int `mapstructure:"max-subscriptions-per-connection" yaml:"max-subscriptions-per-connection"`
+	MaxSubscriptionsPerConnection *int `mapstructure:"max-subscriptions-per-connection" yaml:"max-subscriptions-per-connection"`
 	// MaxSubscriptionsGlobal caps newHeads subscribers across all connections.
-	MaxSubscriptionsGlobal int `mapstructure:"max-subscriptions-global" yaml:"max-subscriptions-global"`
+	MaxSubscriptionsGlobal *int `mapstructure:"max-subscriptions-global" yaml:"max-subscriptions-global"`
 }
 
-// Limits returns the filter package limits for this config. Nil Filters uses zeros
-// so the filters package fills in DefaultLimits.
-func (f *Filters) Limits() (maxFilters, maxSubsPerConn, maxSubsGlobal int) {
+// ResolvedLimits merges this config with defaults. Nil Filters or nil fields
+// keep the corresponding default; an explicit 0 is preserved.
+func (f *Filters) ResolvedLimits(defMaxFilters, defPerConn, defGlobal int) (maxFilters, maxSubsPerConn, maxSubsGlobal int) {
+	maxFilters, maxSubsPerConn, maxSubsGlobal = defMaxFilters, defPerConn, defGlobal
 	if f == nil {
-		return 0, 0, 0
+		return
 	}
-	return f.MaxFilters, f.MaxSubscriptionsPerConnection, f.MaxSubscriptionsGlobal
+	if f.MaxFilters != nil {
+		maxFilters = *f.MaxFilters
+	}
+	if f.MaxSubscriptionsPerConnection != nil {
+		maxSubsPerConn = *f.MaxSubscriptionsPerConnection
+	}
+	if f.MaxSubscriptionsGlobal != nil {
+		maxSubsGlobal = *f.MaxSubscriptionsGlobal
+	}
+	return
 }
 
 // DefaultVhosts is used when Gateway.Vhosts is unset.
@@ -206,13 +218,13 @@ func (cfg Config) Validate() error {
 			}
 		}
 		if f := cfg.Gateway.Filters; f != nil {
-			if f.MaxFilters < 0 {
+			if f.MaxFilters != nil && *f.MaxFilters < 0 {
 				errs = append(errs, errors.New("gateway.filters.max-filters must be >= 0"))
 			}
-			if f.MaxSubscriptionsPerConnection < 0 {
+			if f.MaxSubscriptionsPerConnection != nil && *f.MaxSubscriptionsPerConnection < 0 {
 				errs = append(errs, errors.New("gateway.filters.max-subscriptions-per-connection must be >= 0"))
 			}
-			if f.MaxSubscriptionsGlobal < 0 {
+			if f.MaxSubscriptionsGlobal != nil && *f.MaxSubscriptionsGlobal < 0 {
 				errs = append(errs, errors.New("gateway.filters.max-subscriptions-global must be >= 0"))
 			}
 		}
