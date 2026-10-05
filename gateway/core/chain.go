@@ -77,7 +77,11 @@ func NewChain(dbConnStr, triePath string, withTrie bool) (*Chain, error) {
 // InsertBlock/InsertTransaction/InsertLog are all idempotent under replay.
 func (c *Chain) Handle(ctx context.Context, b blocks.Block) error {
 	logger.Debugf("Chain.Handle() block=%d txs=%d", b.Number, len(b.Transactions))
-	ebl := ConvertToDomain(b)
+	ebl, err := ConvertToDomain(b)
+	if err != nil {
+		logger.Errorf("Chain.Handle() block=%d convert error: %v", b.Number, err)
+		return err
+	}
 
 	ebl.ParentHash = c.prevHash.Bytes()
 	if c.ts != nil {
@@ -138,7 +142,10 @@ func (c *Chain) Close() error {
 // ConvertToDomain maps a Fabric SDK block to the gateway domain model,
 // extracting and decoding the embedded Ethereum transactions.
 // This is a standalone function so it can be reused by other components like Gateway.
-func ConvertToDomain(b blocks.Block) domain.Block {
+//
+// A convertTransaction failure after endorsement/order/commit is a data integrity
+// problem that must not crash the process; callers get an error instead of a panic.
+func ConvertToDomain(b blocks.Block) (domain.Block, error) {
 	ebl := domain.Block{
 		BlockNumber:  b.Number,
 		BlockHash:    b.Hash,
@@ -165,7 +172,7 @@ func ConvertToDomain(b blocks.Block) domain.Block {
 
 		etx, err := convertTransaction(ethTxBytes, b.Hash, b.Number, tx.Number, tx.ID, status, tx.Status, tx.Event, &logIndex)
 		if err != nil {
-			panic(err) // we surface this for now instead of swallowing it
+			return domain.Block{}, fmt.Errorf("convert tx %s in block %d: %w", tx.ID, b.Number, err)
 		}
 		etx.GasUsed = gasUsed
 		etx.CumulativeGasUsed = cumulativeGas
@@ -173,7 +180,7 @@ func ConvertToDomain(b blocks.Block) domain.Block {
 		ebl.Transactions = append(ebl.Transactions, etx)
 	}
 
-	return ebl
+	return ebl, nil
 }
 
 // convertTransaction converts an Ethereum transaction to a domain.Transaction.
