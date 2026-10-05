@@ -74,7 +74,8 @@ func TestConvertToDomain_ValidTx(t *testing.T) {
 		}},
 	}
 
-	got := ConvertToDomain(b)
+	got, err := ConvertToDomain(b)
+	require.NoError(t, err)
 
 	assert.Equal(t, uint64(42), got.BlockNumber)
 	assert.Equal(t, []byte("block-hash"), got.BlockHash)
@@ -103,7 +104,8 @@ func TestConvertToDomain_InvalidTxStatus(t *testing.T) {
 		}},
 	}
 
-	got := ConvertToDomain(b)
+	got, err := ConvertToDomain(b)
+	require.NoError(t, err)
 
 	require.Len(t, got.Transactions, 1)
 	assert.Equal(t, uint8(0), got.Transactions[0].Status)
@@ -139,7 +141,8 @@ func TestConvertToDomain_InvalidTxDropsLogs(t *testing.T) {
 		}},
 	}
 
-	got := ConvertToDomain(b)
+	got, err := ConvertToDomain(b)
+	require.NoError(t, err)
 
 	require.Len(t, got.Transactions, 1)
 	assert.Equal(t, uint8(0), got.Transactions[0].Status)
@@ -161,7 +164,8 @@ func TestConvertToDomain_SkipsNonEVMTx(t *testing.T) {
 		},
 	}
 
-	got := ConvertToDomain(b)
+	got, err := ConvertToDomain(b)
+	require.NoError(t, err)
 
 	assert.Len(t, got.Transactions, 0)
 }
@@ -191,7 +195,8 @@ func TestConvertToDomain_StatusAndGasFromPayload(t *testing.T) {
 		},
 	}
 
-	got := ConvertToDomain(b)
+	got, err := ConvertToDomain(b)
+	require.NoError(t, err)
 
 	require.Len(t, got.Transactions, 6)
 	want := []struct {
@@ -214,6 +219,7 @@ func TestConvertToDomain_StatusAndGasFromPayload(t *testing.T) {
 }
 
 func TestConvertToDomain_SkipsInvalidEthBytes(t *testing.T) {
+	// No EventName marker, so EVMTx skips before convertTransaction runs.
 	b := blocks.Block{
 		Number: 1,
 		Transactions: []blocks.Transaction{{
@@ -223,14 +229,35 @@ func TestConvertToDomain_SkipsInvalidEthBytes(t *testing.T) {
 		}},
 	}
 
-	got := ConvertToDomain(b)
+	got, err := ConvertToDomain(b)
+	require.NoError(t, err)
 
 	assert.Len(t, got.Transactions, 0)
 }
 
+func TestConvertToDomain_InvalidEthPayloadReturnsError(t *testing.T) {
+	// Marked as an EVM tx with garbage eth bytes used to panic; it must return an error.
+	b := blocks.Block{
+		Number: 7,
+		Transactions: []blocks.Transaction{{
+			ID:        "tx-corrupt",
+			Status:    blocks.StatusCommitted,
+			EventName: co.ProposalTypeEVMTx,
+			InputArgs: [][]byte{[]byte("not-an-eth-tx")},
+		}},
+	}
+
+	got, err := ConvertToDomain(b)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "tx-corrupt")
+	assert.Contains(t, err.Error(), "block 7")
+	assert.Empty(t, got.Transactions)
+}
+
 func TestConvertToDomain_EmptyBlock(t *testing.T) {
 	b := blocks.Block{Number: 5}
-	got := ConvertToDomain(b)
+	got, err := ConvertToDomain(b)
+	require.NoError(t, err)
 
 	assert.Equal(t, uint64(5), got.BlockNumber)
 	assert.Len(t, got.Transactions, 0)
