@@ -11,6 +11,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -19,7 +20,9 @@ import (
 	"github.com/hyperledger/fabric-x-committer/api/servicepb"
 	"github.com/hyperledger/fabric-x-committer/service/coordinator/dependencygraph"
 	"github.com/hyperledger/fabric-x-committer/utils/monitoring"
+	"github.com/hyperledger/fabric-x-common/api/applicationpb"
 	"github.com/hyperledger/fabric-x-common/api/committerpb"
+	fc "github.com/hyperledger/fabric-x-evm/common"
 	"github.com/hyperledger/fabric-x-evm/gateway/config"
 	"github.com/hyperledger/fabric-x-evm/gateway/domain"
 	sdk "github.com/hyperledger/fabric-x-sdk"
@@ -101,6 +104,15 @@ type txEndorser interface {
 type trackedTx struct {
 	tx   *types.Transaction
 	node *dependencygraph.TransactionNode
+
+	// end is the endorsement submitToManager made, kept while endorsed so that
+	// processTx need not execute the transaction again; see ReusableEndorsement.
+	// readSeq is the commitSeq it was executed at.
+	end      sdk.Endorsement
+	endorsed bool
+	readSeq  uint64
+	reads    []string
+	writes   []string
 }
 
 // DepGraphQueue is a TxQueueInterface backed by the committer's dependency
@@ -142,6 +154,16 @@ type DepGraphQueue struct {
 	ready   []*types.Transaction
 	tracked map[common.Hash]*trackedTx
 	done    bool
+
+	// commitSeq counts the blocks Handle has seen. lastWrite maps each key a
+	// tracked transaction wrote in the last reuseWindow blocks to the commitSeq
+	// of that write; recent lists each of those blocks' keys, so a block's
+	// entries can be dropped once it falls out of the window. commitSeq is
+	// written under mu but atomic, so submitToManager can read it without
+	// contending for mu.
+	commitSeq atomic.Uint64
+	lastWrite map[string]uint64
+	recent    [reuseWindow][]string
 
 	// Statistics
 	total   int
@@ -187,6 +209,7 @@ func NewDepGraphQueue(cfg *config.DepGraphQueue) *DepGraphQueue {
 		admitted:       make(chan *types.Transaction, chanSize),
 		endorsed:       make(chan *servicepb.TxWithRef, chanSize),
 		tracked:        make(map[common.Hash]*trackedTx),
+		lastWrite:      make(map[string]uint64),
 		endorseWorkers: endorseWorkers,
 		batchThreshold: batchThreshold,
 		batchTimeout:   batchTimeout,
@@ -233,7 +256,7 @@ func (q *DepGraphQueue) Bind(e txEndorser) {
 // Enqueue accepts a transaction for scheduling. It must not block: the nonce
 // gate calls it while holding its own write lock, so the endorsement happens on
 // an endorse worker rather than here.
-func (q *DepGraphQueue) Enqueue(tx *types.Transaction) {
+func (q *DepGraphQueue) Enqueue(tx *types.Transaction) error {
 	hash := tx.Hash()
 	depGraphLogger.Debugf("DepGraphQueue.Enqueue() called with tx %s", hash.Hex())
 
@@ -241,23 +264,26 @@ func (q *DepGraphQueue) Enqueue(tx *types.Transaction) {
 	defer q.mu.Unlock()
 
 	if q.done {
-		depGraphLogger.Warnf("DepGraphQueue.Enqueue() tx %s ignored: queue is closed", hash.Hex())
-		return
+		depGraphLogger.Warnf("DepGraphQueue.Enqueue() tx %s rejected: queue is closed", hash.Hex())
+		return domain.ErrQueueClosed
 	}
 	if _, dup := q.tracked[hash]; dup {
-		depGraphLogger.Warnf("DepGraphQueue.Enqueue() tx %s ignored: already tracked", hash.Hex())
-		return
+		depGraphLogger.Warnf("DepGraphQueue.Enqueue() tx %s rejected: already tracked", hash.Hex())
+		return domain.ErrTransactionAlreadyPending
 	}
 
 	select {
 	case q.admitted <- tx:
 	default:
-		// Enqueue cannot report this (#379) and the nonce gate holds its own
-		// lock while calling us, so blocking is not an option either. Loud for
-		// the prototype rather than a transaction quietly disappearing.
-		panic(fmt.Sprintf("dependency manager queue: admitted channel full, tx %s", hash.Hex()))
+		// Blocking is not an option: the nonce gate holds its own lock while
+		// calling us. The caller reports it, and the client can retry.
+		msg := fmt.Sprintf("DepGraphQueue.Enqueue() tx %s rejected: admitted channel full", hash.Hex())
+		depGraphLogger.Error(msg)
+		fc.DebugPanic(msg)
+		return domain.ErrQueueFull
 	}
 	q.tracked[hash] = &trackedTx{tx: tx}
+	return nil
 }
 
 // endorseLoop endorses admitted transactions and hands them to the manager.
@@ -276,11 +302,13 @@ func (q *DepGraphQueue) endorseLoop() {
 }
 
 // submitToManager endorses for a read-write set and hands the result to the
-// batcher. A failure here drops the transaction: Enqueue has no error return,
-// so there is nowhere to report it (#379).
+// batcher. A failure here drops the transaction: Enqueue has already returned,
+// so, like a failed processTx, it is logged and the client can resubmit.
 func (q *DepGraphQueue) submitToManager(tx *types.Transaction) {
 	hash := tx.Hash()
 	depGraphLogger.Debugf("DepGraphQueue.submitToManager() endorsing tx %s", hash.Hex())
+
+	seq := q.commitSeq.Load()
 
 	end, err := q.endorser.ExecuteTransaction(q.ctx, tx)
 	if err != nil {
@@ -298,6 +326,7 @@ func (q *DepGraphQueue) submitToManager(tx *types.Transaction) {
 		depGraphLogger.Errorf("read-write set for tx %s: %v", hash.Hex(), err)
 		panic(fmt.Sprintf("dependency manager queue: read-write set for tx %s: %v", hash.Hex(), err))
 	}
+	q.keepEndorsement(hash, seq, end, content)
 
 	select {
 	case q.endorsed <- &servicepb.TxWithRef{
@@ -465,12 +494,100 @@ func (q *DepGraphQueue) Handle(_ context.Context, block *domain.Block) error {
 	}
 
 	q.mu.Lock()
+	q.recordCommitted(block.Transactions)
 	nodes := q.takeNodes(hashes)
 	q.mu.Unlock()
 
 	depGraphLogger.Debugf("DepGraphQueue.Handle() releasing %d nodes (total txs=%d)", len(nodes), len(hashes))
 	q.release(nodes)
 	return nil
+}
+
+// reuseWindow is how many blocks an endorsement can be reused across. One that
+// waited longer is re-executed: it has most likely gone stale anyway, and the
+// bound keeps lastWrite to the writes of the last reuseWindow blocks.
+const reuseWindow = 64
+
+// keepEndorsement records what tx read and wrote and keeps its endorsement for
+// processTx. seq is the commitSeq it was executed at.
+//
+// This assumes the endorser's state already includes every block Handle has
+// counted, which holds for the local endorser, whose store handles blocks before
+// the gateway does. A lagging remote endorser could serve an older read; the
+// second execution this replaces, made later, had a similar exposure.
+func (q *DepGraphQueue) keepEndorsement(hash common.Hash, seq uint64, end sdk.Endorsement, content *applicationpb.Tx) {
+	reads, writes := readWriteKeys(content)
+	q.mu.Lock()
+	defer q.mu.Unlock()
+	if t, ok := q.tracked[hash]; ok {
+		t.end, t.endorsed, t.readSeq, t.reads, t.writes = end, true, seq, reads, writes
+	}
+}
+
+// recordCommitted counts one block and notes the keys its valid tracked
+// transactions wrote, dropping those of the block that falls out of the reuse
+// window. It must run before takeNodes, which forgets their write sets. Caller
+// must hold q.mu.
+//
+// Only transactions this queue still tracks are seen: a domain.Block carries no
+// read-write sets, so a write by another gateway, or by a tx already completed
+// after an ambiguous submit failure, goes unnoticed, and so does state the test
+// RPCs change directly (hardhat_set*, evm_revert). A reused endorsement that
+// read it then fails the committer's MVCC check instead of being re-executed.
+func (q *DepGraphQueue) recordCommitted(txs []domain.Transaction) {
+	seq := q.commitSeq.Add(1)
+	slot := &q.recent[seq%reuseWindow]
+	for _, k := range *slot {
+		if q.lastWrite[k] == seq-reuseWindow {
+			delete(q.lastWrite, k)
+		}
+	}
+	clear(*slot)
+	*slot = (*slot)[:0]
+
+	for _, tx := range txs {
+		if !tx.FabricTxStatus.Valid() {
+			continue
+		}
+		t, ok := q.tracked[common.BytesToHash(tx.TxHash)]
+		if !ok {
+			continue
+		}
+		for _, k := range t.writes {
+			q.lastWrite[k] = seq
+			*slot = append(*slot, k)
+		}
+	}
+}
+
+// ReusableEndorsement hands over, once, the endorsement submitToManager made
+// for hash, if nothing it read has been overwritten since. Call it after Dequeue
+// serves hash: by then every transaction it depended on has finished, and none
+// depending on it can commit first, so only commits seen so far can stale it.
+//
+// When it reports false, the caller executes again, as before this existed.
+// The graph and recordCommitted still hold the first execution's read-write
+// set, so this relies on a re-execution touching the same keys: a key only the
+// re-execution touches is neither protected from new transactions nor recorded.
+func (q *DepGraphQueue) ReusableEndorsement(hash common.Hash) (sdk.Endorsement, bool) {
+	q.mu.Lock()
+	defer q.mu.Unlock()
+
+	t, ok := q.tracked[hash]
+	if !ok || !t.endorsed {
+		return sdk.Endorsement{}, false
+	}
+	end := t.end
+	t.end, t.endorsed = sdk.Endorsement{}, false
+	if q.commitSeq.Load()-t.readSeq >= reuseWindow {
+		return sdk.Endorsement{}, false
+	}
+	for _, k := range t.reads {
+		if q.lastWrite[k] > t.readSeq {
+			return sdk.Endorsement{}, false
+		}
+	}
+	return end, true
 }
 
 // takeNodes untracks each hash and collects their nodes that still need

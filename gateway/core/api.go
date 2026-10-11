@@ -37,8 +37,8 @@ type Submitter interface {
 // TxQueueInterface defines the interface that transaction queue implementations must satisfy.
 // This allows switching between different queue implementations (e.g., TxQueue and TxQueueV2).
 type TxQueueInterface interface {
-	// Enqueue adds a transaction to the queue
-	Enqueue(tx *types.Transaction)
+	// Enqueue adds a transaction to the queue. An error means it was not added.
+	Enqueue(tx *types.Transaction) error
 
 	// Dequeue removes and returns a transaction from the queue
 	// Returns (transaction, true) if successful, or (nil, false) if queue is closed
@@ -64,6 +64,13 @@ type TxQueueInterface interface {
 
 	// Stats returns statistics about processed transactions (total, invalid)
 	Stats() (total int, invalid int, totalEnq int, conflictEnq int)
+}
+
+// endorsementReuser is a queue that already endorsed a transaction on the way
+// in and can hand that endorsement back while it is still current, sparing
+// processTx a second execution.
+type endorsementReuser interface {
+	ReusableEndorsement(txHash common.Hash) (sdk.Endorsement, bool)
 }
 
 var logger = flogging.MustGetLogger("gateway.core")
@@ -173,6 +180,11 @@ func (g *Gateway) worker(ctx context.Context) {
 
 // processTx handles the actual transaction processing
 func (g *Gateway) processTx(ctx context.Context, tx *types.Transaction) error {
+	if r, ok := g.TxQueue.(endorsementReuser); ok {
+		if end, ok := r.ReusableEndorsement(tx.Hash()); ok {
+			return g.SubmitFabricTx(ctx, tx.Hash(), end)
+		}
+	}
 	end, err := g.ExecuteEthTx(ctx, tx)
 	if err != nil {
 		return err
