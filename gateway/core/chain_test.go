@@ -269,7 +269,8 @@ func TestChain_Handle_InvalidEthPayloadUsesDebugPanic(t *testing.T) {
 		Transactions: []blocks.Transaction{{
 			ID:        "tx-corrupt",
 			Status:    blocks.StatusCommitted,
-			InputArgs: [][]byte{{byte(co.ProposalTypeEVMTx)}, []byte("not-an-eth-tx")},
+			EventName: co.ProposalTypeEVMTx,
+			InputArgs: [][]byte{[]byte("not-an-eth-tx")},
 		}},
 	}
 
